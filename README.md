@@ -20,13 +20,18 @@ sysadmin-windows/
 │   ├── Network-Diagnostics.ps1        # adapters, routing, DNS, reachability
 │   ├── Security-Audit.ps1             # admin membership, firewall, failed logons, etc.
 │   ├── Package-Inventory.ps1          # snapshot installed software, diff baselines
-│   └── User-Activity-Report.ps1       # logons, failed logons, lockouts
+│   ├── User-Activity-Report.ps1       # logons, failed logons, lockouts
+│   ├── Cert-Expiry-Check.ps1          # TLS cert expiry, live host or local file
+│   ├── Scheduled-Task-Audit.ps1       # flag SYSTEM/hidden/user-writable-path tasks
+│   └── Firewall-Rules-Dump.ps1        # snapshot Windows Firewall rules
 └── docs/
     ├── server-hardening-checklist.md
     ├── incident-response-runbook.md
     ├── troubleshooting-guide.md
     ├── active-directory-reference.md
-    └── powershell-remoting-eventlog-reference.md
+    ├── powershell-remoting-eventlog-reference.md
+    ├── backup-dr-testing-runbook.md
+    └── monitoring-alerting-guide.md
 ```
 
 ## Usage
@@ -58,8 +63,13 @@ PowerShell session.
 - RSAT AD PowerShell module for the Active Directory reference commands
   (not required by any script in this repo directly)
 
+## Contributing
+
+Bug reports, script/doc suggestions, and pull requests are welcome — see
+[CONTRIBUTING.md](CONTRIBUTING.md) for the process and style guidelines.
+Pushes and PRs touching `scripts/**.ps1` run through
+[PSScriptAnalyzer](.github/workflows/psscriptanalyzer.yml) in CI.
+
 ## License
 
-MIT — use at your own risk, no warranty. See individual scripts for
-details.
-
+MIT — see [LICENSE](LICENSE). Use at your own risk, no warranty.
