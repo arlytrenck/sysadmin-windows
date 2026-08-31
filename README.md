@@ -23,7 +23,10 @@ sysadmin-windows/
 │   ├── User-Activity-Report.ps1       # logons, failed logons, lockouts
 │   ├── Cert-Expiry-Check.ps1          # TLS cert expiry, live host or local file
 │   ├── Scheduled-Task-Audit.ps1       # flag SYSTEM/hidden/user-writable-path tasks
-│   └── Firewall-Rules-Dump.ps1        # snapshot Windows Firewall rules
+│   ├── Firewall-Rules-Dump.ps1        # snapshot Windows Firewall rules
+│   ├── Local-Admin-Audit.ps1          # flag unexpected/disabled local admins
+│   ├── Disk-Health-Check.ps1          # physical disk health & reliability counters
+│   └── Process-Watchdog.ps1           # flag high CPU/mem or unresponsive processes
 └── docs/
     ├── server-hardening-checklist.md
     ├── incident-response-runbook.md
@@ -31,7 +34,9 @@ sysadmin-windows/
     ├── active-directory-reference.md
     ├── powershell-remoting-eventlog-reference.md
     ├── backup-dr-testing-runbook.md
-    └── monitoring-alerting-guide.md
+    ├── monitoring-alerting-guide.md
+    ├── database-backup-restore-guide.md
+    └── capacity-planning-guide.md
 ```
 
 ## Usage
@@ -61,7 +66,10 @@ PowerShell session.
 - `PSWindowsUpdate` module for `Windows-Update.ps1` (auto-installed from
   PSGallery on first run if internet-connected)
 - RSAT AD PowerShell module for the Active Directory reference commands
-  (not required by any script in this repo directly)
+  and for `Local-Admin-Audit.ps1`'s domain-account checks (not required
+  for local-only accounts)
+- Storage module (built in on Windows Server 2012+/Windows 8+) for
+  `Disk-Health-Check.ps1`
 
 ## Contributing
 
