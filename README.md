@@ -41,7 +41,12 @@ sysadmin-windows/
     ├── database-backup-restore-guide.md
     ├── capacity-planning-guide.md
     ├── patch-management-guide.md
-    └── endpoint-protection-guide.md
+    ├── endpoint-protection-guide.md
+    ├── incident-postmortem-template.md
+    ├── change-management-checklist.md
+    ├── disaster-recovery-plan-template.md
+    ├── troubleshooting-flowchart.md
+    └── glossary.md
 ```
 
 ## Usage
