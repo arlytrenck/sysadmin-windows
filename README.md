@@ -26,7 +26,10 @@ sysadmin-windows/
 │   ├── Firewall-Rules-Dump.ps1        # snapshot Windows Firewall rules
 │   ├── Local-Admin-Audit.ps1          # flag unexpected/disabled local admins
 │   ├── Disk-Health-Check.ps1          # physical disk health & reliability counters
-│   └── Process-Watchdog.ps1           # flag high CPU/mem or unresponsive processes
+│   ├── Process-Watchdog.ps1           # flag high CPU/mem or unresponsive processes
+│   ├── Pending-Reboot-Check.ps1       # detect whether a reboot is waiting to apply
+│   ├── Event-Log-Anomaly-Scan.ps1     # flag error-rate spikes vs. a trailing baseline
+│   └── Defender-Status-Check.ps1      # real-time protection, signature age, last scan
 └── docs/
     ├── server-hardening-checklist.md
     ├── incident-response-runbook.md
@@ -36,7 +39,9 @@ sysadmin-windows/
     ├── backup-dr-testing-runbook.md
     ├── monitoring-alerting-guide.md
     ├── database-backup-restore-guide.md
-    └── capacity-planning-guide.md
+    ├── capacity-planning-guide.md
+    ├── patch-management-guide.md
+    └── endpoint-protection-guide.md
 ```
 
 ## Usage
@@ -70,6 +75,8 @@ PowerShell session.
   for local-only accounts)
 - Storage module (built in on Windows Server 2012+/Windows 8+) for
   `Disk-Health-Check.ps1`
+- Defender PowerShell module (built in on Windows 10/11 and Server
+  2016+) for `Defender-Status-Check.ps1`
 
 ## Contributing
 
