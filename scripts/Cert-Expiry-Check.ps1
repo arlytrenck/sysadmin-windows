@@ -36,6 +36,10 @@ param(
 $ErrorActionPreference = 'Stop'
 $worstStatus = 0
 
+if ($Targets.Count -eq 0 -and -not $CertPath) {
+    throw "Specify -Targets host:port[,host:port...] and/or -CertPath."
+}
+
 function Test-Expiry {
     param([string]$Label, [datetime]$NotAfter)
 
@@ -72,7 +76,9 @@ foreach ($target in $Targets) {
 
     try {
         $tcpClient = New-Object System.Net.Sockets.TcpClient($targetHost, $port)
-        $sslStream = New-Object System.Net.Security.SslStream($tcpClient.GetStream(), $false, ({ $true }))
+        # Accept any cert — we only want the expiry date, not a trust decision.
+        $validationCallback = [System.Net.Security.RemoteCertificateValidationCallback]{ param($s, $c, $ch, $e) $true }
+        $sslStream = New-Object System.Net.Security.SslStream($tcpClient.GetStream(), $false, $validationCallback)
         $sslStream.AuthenticateAsClient($targetHost)
         $cert2 = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($sslStream.RemoteCertificate)
         Test-Expiry -Label "$targetHost`:$port" -NotAfter $cert2.NotAfter
@@ -82,10 +88,6 @@ foreach ($target in $Targets) {
         Write-Warning "[UNKNOWN] $targetHost`:$port — could not retrieve certificate: $_"
         $worstStatus = [math]::Max($worstStatus, 1)
     }
-}
-
-if ($Targets.Count -eq 0 -and -not $CertPath) {
-    throw "Specify -Targets host:port[,host:port...] and/or -CertPath."
 }
 
 exit $worstStatus
