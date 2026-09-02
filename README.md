@@ -29,7 +29,9 @@ sysadmin-windows/
 │   ├── Process-Watchdog.ps1           # flag high CPU/mem or unresponsive processes
 │   ├── Pending-Reboot-Check.ps1       # detect whether a reboot is waiting to apply
 │   ├── Event-Log-Anomaly-Scan.ps1     # flag error-rate spikes vs. a trailing baseline
-│   └── Defender-Status-Check.ps1      # real-time protection, signature age, last scan
+│   ├── Defender-Status-Check.ps1      # real-time protection, signature age, last scan
+│   ├── Export-Config-Snapshot.ps1     # services/tasks/groups/firewall/features -> one JSON
+│   └── Compare-Config-Drift.ps1       # diff two Export-Config-Snapshot JSON files
 └── docs/
     ├── server-hardening-checklist.md
     ├── incident-response-runbook.md
