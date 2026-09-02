@@ -31,7 +31,8 @@ sysadmin-windows/
 │   ├── Event-Log-Anomaly-Scan.ps1     # flag error-rate spikes vs. a trailing baseline
 │   ├── Defender-Status-Check.ps1      # real-time protection, signature age, last scan
 │   ├── Export-Config-Snapshot.ps1     # services/tasks/groups/firewall/features -> one JSON
-│   └── Compare-Config-Drift.ps1       # diff two Export-Config-Snapshot JSON files
+│   ├── Compare-Config-Drift.ps1       # diff two Export-Config-Snapshot JSON files
+│   └── Export-HyperV-Config.ps1       # Hyper-V host + per-VM settings -> one JSON
 └── docs/
     ├── server-hardening-checklist.md
     ├── incident-response-runbook.md
@@ -48,6 +49,7 @@ sysadmin-windows/
     ├── change-management-checklist.md
     ├── disaster-recovery-plan-template.md
     ├── troubleshooting-flowchart.md
+    ├── windows-in-the-homelab.md
     └── glossary.md
 ```
 
