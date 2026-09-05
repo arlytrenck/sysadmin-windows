@@ -42,6 +42,9 @@ sysadmin-windows/
     ├── troubleshooting-guide.md
     ├── active-directory-reference.md
     ├── powershell-remoting-eventlog-reference.md
+    ├── powershell-cheatsheet.md
+    ├── windows-networking-cheatsheet.md
+    ├── windows-storage-cheatsheet.md
     ├── backup-dr-testing-runbook.md
     ├── monitoring-alerting-guide.md
     ├── database-backup-restore-guide.md
