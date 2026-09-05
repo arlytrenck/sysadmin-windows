@@ -1,5 +1,8 @@
 # sysadmin-windows
 
+[![PSScriptAnalyzer](https://github.com/arlytrenck/sysadmin-windows/actions/workflows/psscriptanalyzer.yml/badge.svg)](https://github.com/arlytrenck/sysadmin-windows/actions/workflows/psscriptanalyzer.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A collection of Windows Server administration scripts, runbooks, and
 reference documentation, gathered from day-to-day homelab and small-fleet
 operations. Companion repo to
