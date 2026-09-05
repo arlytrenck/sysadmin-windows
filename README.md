@@ -32,7 +32,10 @@ sysadmin-windows/
 │   ├── Defender-Status-Check.ps1      # real-time protection, signature age, last scan
 │   ├── Export-Config-Snapshot.ps1     # services/tasks/groups/firewall/features -> one JSON
 │   ├── Compare-Config-Drift.ps1       # diff two Export-Config-Snapshot JSON files
-│   └── Export-HyperV-Config.ps1       # Hyper-V host + per-VM settings -> one JSON
+│   ├── Export-HyperV-Config.ps1       # Hyper-V host + per-VM settings -> one JSON
+│   ├── Listening-Ports-Audit.ps1      # every listening TCP/UDP endpoint, flag vs. an allowlist
+│   ├── Time-Sync-Check.ps1            # W32Time sync status + offset threshold
+│   └── BitLocker-Status-Audit.ps1     # flag unencrypted/suspended/protector-less volumes
 └── docs/
     ├── server-hardening-checklist.md
     ├── incident-response-runbook.md
