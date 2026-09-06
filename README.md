@@ -40,14 +40,19 @@ sysadmin-windows/
 │   ├── Time-Sync-Check.ps1            # W32Time sync status + offset threshold
 │   └── BitLocker-Status-Audit.ps1     # flag unencrypted/suspended/protector-less volumes
 └── docs/
+    ├── windows-server-bootstrap-checklist.md   # day-0 procedure for a fresh Windows Server
     ├── server-hardening-checklist.md
     ├── incident-response-runbook.md
     ├── troubleshooting-guide.md
     ├── active-directory-reference.md
+    ├── group-policy-reference.md               # GPO structure, RSoP, PowerShell editing, baseline settings
+    ├── dns-dhcp-reference.md                   # Windows DNS + DHCP roles: zones, scavenging, scopes, failover
     ├── powershell-remoting-eventlog-reference.md
     ├── powershell-cheatsheet.md
     ├── windows-networking-cheatsheet.md
+    ├── windows-firewall-cheatsheet.md          # Defender Firewall from PowerShell: scoped rules, profiles, logging
     ├── windows-storage-cheatsheet.md
+    ├── hyper-v-cheatsheet.md                   # VMs, checkpoints, vSwitches, VHDX, replica, export/import
     ├── backup-dr-testing-runbook.md
     ├── monitoring-alerting-guide.md
     ├── database-backup-restore-guide.md
