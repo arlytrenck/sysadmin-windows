@@ -5,7 +5,7 @@
 
 .PARAMETER CpuThresholdSeconds
     Flag a process if its total CPU time exceeds this many seconds
-    (default: 3600 — one CPU-hour). Windows doesn't expose instantaneous
+    (default: 3600 - one CPU-hour). Windows doesn't expose instantaneous
     %CPU as cheaply as Unix ps; total CPU time is the practical signal
     for "this has been burning CPU for a long time."
 
