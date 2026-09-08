@@ -28,7 +28,7 @@ param(
 )
 
 if (-not (Get-Command Get-BitLockerVolume -ErrorAction SilentlyContinue)) {
-    Write-Warning "Get-BitLockerVolume is not available — BitLocker feature/module not present on this host."
+    Write-Warning "Get-BitLockerVolume is not available - BitLocker feature/module not present on this host."
     exit 2
 }
 
@@ -63,7 +63,7 @@ foreach ($drive in $RequireVolumes) {
         $flagged = $true
     }
     if (-not $vol.KeyProtector -or $vol.KeyProtector.Count -eq 0) {
-        Write-Host "FLAG: $drive has no key protector configured — no recovery path if the TPM/PIN path fails"
+        Write-Host "FLAG: $drive has no key protector configured - no recovery path if the TPM/PIN path fails"
         $flagged = $true
     }
 }

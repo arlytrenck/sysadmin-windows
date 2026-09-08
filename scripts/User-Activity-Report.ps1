@@ -31,7 +31,7 @@ Write-Host "=== Currently logged on (interactive + RDP) sessions ==="
 try {
     query user 2>$null
 } catch {
-    Write-Host "  (query user unavailable — no interactive sessions, or not supported on this SKU)"
+    Write-Host "  (query user unavailable - no interactive sessions, or not supported on this SKU)"
 }
 
 Write-Host ""

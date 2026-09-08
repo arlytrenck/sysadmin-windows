@@ -83,8 +83,8 @@ Run everything from an elevated PowerShell session. Adapt names/IPs.
   Get-NetFirewallProfile | Select Name,Enabled,DefaultInboundAction
   Set-NetFirewallProfile -All -Enabled True -DefaultInboundAction Block -DefaultOutboundAction Allow
   ```
-- [ ] Scope management rules (RDP, WinRM, WMI) to your admin subnet only —
-  see [windows-firewall-cheatsheet.md](windows-firewall-cheatsheet.md).
+- [ ] Scope management rules (RDP, WinRM, WMI) to your admin subnet only.
+  See [windows-firewall-cheatsheet.md](windows-firewall-cheatsheet.md).
 - [ ] Turn on dropped-packet logging while you validate, then dial it back.
 
 ## 7. Hardening pass
@@ -114,7 +114,7 @@ Run everything from an elevated PowerShell session. Adapt names/IPs.
 ## 9. Backup and monitoring
 
 - [ ] Windows Server Backup / your backup product configured and a **restore
-  tested** — see [backup-dr-testing-runbook.md](backup-dr-testing-runbook.md).
+  tested**. See [backup-dr-testing-runbook.md](backup-dr-testing-runbook.md).
 - [ ] System State backup scheduled (critical for DCs, CAs).
 - [ ] Monitoring agent installed; host shows up in the dashboard with disk,
   CPU, memory, service, and event-log checks
@@ -126,7 +126,7 @@ Run everything from an elevated PowerShell session. Adapt names/IPs.
 - [ ] Time in sync (step 3), DNS pointing at domain controllers (step 2).
 - [ ] `Add-Computer -DomainName corp.example.com -OUPath 'OU=Servers,DC=corp,DC=example,DC=com' -Restart`
 - [ ] After reboot: `gpupdate /force`, then `gpresult /h C:\gpresult.html` to
-  confirm the expected GPOs applied — see
+  confirm the expected GPOs applied. See
   [group-policy-reference.md](group-policy-reference.md).
 - [ ] Remove the box from any local groups that the domain now manages.
 

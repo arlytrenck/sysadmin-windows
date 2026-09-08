@@ -1,7 +1,7 @@
 # Windows Server Hardening Checklist
 
 A baseline checklist for a newly provisioned Windows Server before it goes
-into production. Not exhaustive — treat it as a floor, and layer your
+into production. Not exhaustive. Treat it as a floor, and layer your
 organization's own policy (CIS Benchmarks, DISA STIGs) on top.
 
 ## Access
@@ -12,7 +12,7 @@ organization's own policy (CIS Benchmarks, DISA STIGs) on top.
       Group Policy for domain-joined hosts).
 - [ ] Enable account lockout policy (reasonable threshold + duration) to
       slow brute-force attempts.
-- [ ] Remove unnecessary accounts from the local Administrators group —
+- [ ] Remove unnecessary accounts from the local Administrators group:
       audit with `security-audit.ps1` / `Get-LocalGroupMember`.
 - [ ] Disable the Guest account (`Disable-LocalUser -Name Guest`).
 - [ ] Require MFA for any remote administrative access (RDP gateway, VPN,
@@ -22,12 +22,12 @@ organization's own policy (CIS Benchmarks, DISA STIGs) on top.
 
 - [ ] Enable Windows Firewall on all profiles (Domain/Private/Public); set
       default-deny inbound.
-- [ ] Restrict RDP: don't expose port 3389 directly to the internet — use a
+- [ ] Restrict RDP: don't expose port 3389 directly to the internet. Use a
       VPN, Remote Desktop Gateway, or Just-In-Time access.
 - [ ] Disable SMBv1 (`Disable-WindowsOptionalFeature -Online -FeatureName
       SMB1Protocol`) unless a legacy dependency requires it.
 - [ ] Enable Network Level Authentication (NLA) for RDP.
-- [ ] Review and close unnecessary listening ports —
+- [ ] Review and close unnecessary listening ports:
       `network-diagnostics.ps1` lists current listeners.
 
 ## System
@@ -38,11 +38,11 @@ organization's own policy (CIS Benchmarks, DISA STIGs) on top.
       for managed patching cadence.
 - [ ] Ensure Windows Defender (or your chosen AV/EDR) real-time protection
       is enabled and signatures are current.
-- [ ] Disable unused Windows features/roles (`Get-WindowsFeature`) —
+- [ ] Disable unused Windows features/roles (`Get-WindowsFeature`):
       smaller attack surface.
 - [ ] Set an appropriate audit policy (`auditpol /get /category:*`) so
       logon, account management, and privilege-use events are actually
-      logged — the activity/security scripts here assume this.
+      logged, the activity/security scripts here assume this.
 
 ## Monitoring
 
@@ -50,7 +50,7 @@ organization's own policy (CIS Benchmarks, DISA STIGs) on top.
 - [ ] Alert on account lockouts, new Administrators-group members, and
       repeated failed logons.
 - [ ] Set Security log size generously (`wevtutil sl Security
-      /ms:<bytes>`) — a full log silently stops recording (or overwrites,
+      /ms:<bytes>`): a full log silently stops recording (or overwrites,
       depending on retention mode) if too small for your event volume.
 - [ ] Schedule `package-inventory.ps1` periodically and diff against a
       known-good baseline to catch unexpected software installs.

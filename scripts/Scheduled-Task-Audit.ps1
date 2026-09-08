@@ -2,7 +2,7 @@
 .SYNOPSIS
     Enumerates all scheduled tasks on the box, flagging ones that run as
     SYSTEM/high-privilege accounts, run hidden, or execute from
-    user-writable locations — common persistence patterns worth a second
+    user-writable locations - common persistence patterns worth a second
     look.
 
 .DESCRIPTION
@@ -47,6 +47,6 @@ foreach ($task in $tasks) {
 }
 
 Write-Host ""
-Write-Host "Done. A task here isn't necessarily malicious — plenty of legitimate"
-Write-Host "software installs its own scheduled tasks — but anything unfamiliar,"
+Write-Host "Done. A task here isn't necessarily malicious - plenty of legitimate"
+Write-Host "software installs its own scheduled tasks - but anything unfamiliar,"
 Write-Host "especially SYSTEM-level and hidden, is worth tracing back to its source."
