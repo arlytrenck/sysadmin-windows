@@ -1,6 +1,6 @@
 # Monitoring & Alerting Setup Guide
 
-A practical starting point for monitoring a small Windows Server fleet —
+A practical starting point for monitoring a small Windows Server fleet:
 from "scheduled task plus a webhook" up through a proper metrics stack.
 Pick the tier that matches your scale; there's no need to run a full
 monitoring platform for two servers.
@@ -30,12 +30,12 @@ tuned per-host.
 Once you want trends (is disk usage growing linearly or did something
 spike?) and a dashboard, add a metrics agent:
 
-- **Windows Exporter** (Prometheus) + a self-hosted Prometheus + Grafana —
+- **Windows Exporter** (Prometheus) + a self-hosted Prometheus + Grafana:
   full control, more to operate yourself.
-- **System Center Operations Manager (SCOM)** — the traditional Microsoft-
+- **System Center Operations Manager (SCOM)**: the traditional Microsoft-
   stack option if you're already invested in System Center.
 - A hosted option (Datadog, Grafana Cloud, Azure Monitor for hybrid/cloud
-  VMs, etc.) — less infrastructure to run, ongoing cost scales with
+  VMs, etc.): less infrastructure to run, ongoing cost scales with
   hosts/metrics.
 
 Minimum useful metric set for a general-purpose server: CPU, memory, disk
@@ -46,10 +46,10 @@ usage and I/O, network throughput, and Windows service state.
 Once metrics are flowing, define alert rules rather than eyeballing
 dashboards:
 
-- Alert on trend, not just threshold, where possible — "disk will fill in
+- Alert on trend, not just threshold, where possible: "disk will fill in
   under 48 hours at current growth rate" catches problems earlier than a
   flat "under 10% free" rule and fires less often on temporary spikes.
-- Alert on absence, not just presence — a host that stops reporting
+- Alert on absence, not just presence, a host that stops reporting
   metrics at all is itself worth an alert (a metrics agent that died is
   indistinguishable from "everything's fine" if you only alert on bad
   values).
@@ -61,7 +61,7 @@ dashboards:
 Metrics tell you *that* something's wrong; logs tell you *why*. Options
 roughly by operational weight:
 
-- Windows Event Forwarding (WEF) to a central collector — built into
+- Windows Event Forwarding (WEF) to a central collector: built into
   Windows, no extra agent required, good starting point for a small
   fleet.
 - A lightweight shipper (Winlogbeat, NXLog) to a log backend (a
@@ -85,7 +85,7 @@ roughly by operational weight:
 ## A note on alert fatigue
 
 More alerts is not more safety once people start ignoring them. Every
-alert should be actionable — if an alert fires and the response is always
+alert should be actionable: if an alert fires and the response is always
 "yeah, ignore that one," either fix the underlying threshold or remove the
 alert. Review your alert rules periodically, not just when adding new
 ones.

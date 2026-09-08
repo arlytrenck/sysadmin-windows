@@ -49,12 +49,12 @@ Invoke-Command -ComputerName server1 -ScriptBlock { C:\Scripts\Windows-Update.ps
 
 Commands run via `Invoke-Command` that themselves need to reach a *third*
 machine (e.g., a script on server1 that queries a file share on server2)
-hit the "double-hop" problem — the remote session's credentials don't
+hit the "double-hop" problem, the remote session's credentials don't
 delegate by default. Options, roughly in order of preference:
 
 - Use CIM/WinRM-based cmdlets that support `-CimSession` instead of a
   nested `Invoke-Command`, where available.
-- Enable CredSSP (`Enable-WSManCredSSP`) only where necessary — it's
+- Enable CredSSP (`Enable-WSManCredSSP`) only where necessary. It's
   more permissive than default Kerberos delegation and increases risk if
   the intermediate host is compromised.
 - Use constrained Kerberos delegation configured by your AD admins for a
@@ -81,7 +81,7 @@ wevtutil sl Security /ms:1073741824 /rt:false     # 1 GB, overwrite as needed
 
 ## Notes
 
-- `Get-WinEvent` is the modern replacement for `Get-EventLog`; prefer it —
+- `Get-WinEvent` is the modern replacement for `Get-EventLog`; prefer it:
   `Get-EventLog` is limited to classic logs and is officially
   deprecated-in-spirit even though still present.
 - Reading the Security log generally requires an elevated session even for

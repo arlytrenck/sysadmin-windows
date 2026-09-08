@@ -71,7 +71,7 @@ sysadmin-windows/
 
 Each script is a self-contained PowerShell script with comment-based help
 (`Get-Help .\ScriptName.ps1 -Full`). Review the source before running
-anything against a production host — these are starting points, not
+anything against a production host. These are starting points, not
 turnkey solutions, and you should adapt paths, thresholds, and service
 names to your environment. Most scripts that change system state support
 `-WhatIf`.
@@ -103,11 +103,11 @@ PowerShell session.
 
 ## Contributing
 
-Bug reports, script/doc suggestions, and pull requests are welcome — see
+Bug reports, script/doc suggestions, and pull requests are welcome. See
 [CONTRIBUTING.md](CONTRIBUTING.md) for the process and style guidelines.
 Pushes and PRs touching `scripts/**.ps1` run through
 [PSScriptAnalyzer](.github/workflows/psscriptanalyzer.yml) in CI.
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Use at your own risk, no warranty.
+MIT. See [LICENSE](LICENSE). Use at your own risk, no warranty.

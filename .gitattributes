@@ -1,0 +1,6 @@
+* text=auto eol=lf
+
+# PowerShell reads either ending, and LF keeps diffs clean across platforms.
+*.ps1  text eol=lf
+*.md   text eol=lf
+*.yml  text eol=lf

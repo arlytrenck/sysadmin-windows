@@ -1,6 +1,6 @@
 # Hyper-V Cheatsheet
 
-Managing a Hyper-V host from PowerShell — VMs, checkpoints, virtual switches,
+Managing a Hyper-V host from PowerShell: VMs, checkpoints, virtual switches,
 storage, replica, and the export/import path. The host-config snapshot script
 is [Export-HyperV-Config.ps1](../scripts/Export-HyperV-Config.ps1). Run
 elevated; the `Hyper-V` PowerShell module ships with the role.
@@ -42,7 +42,7 @@ Set-VMFirmware web01 -SecureBootTemplate 'MicrosoftUEFICertificateAuthority'  # 
 Get-VMFirmware web01 | Select -ExpandProperty BootOrder
 ```
 
-Gen 2 = UEFI, SCSI boot, Secure Boot, no legacy emulation — use it for any
+Gen 2 = UEFI, SCSI boot, Secure Boot, no legacy emulation. Use it for any
 modern guest. Gen 1 only for old OSes or PXE-from-legacy-NIC needs.
 
 ## Virtual switches

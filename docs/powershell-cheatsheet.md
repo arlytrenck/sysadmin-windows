@@ -1,6 +1,6 @@
 # PowerShell Cheatsheet
 
-Core language and pipeline reference — the stuff that's easy to blank on
+Core language and pipeline reference, the stuff that's easy to blank on
 mid-task. For remoting and event log querying specifically, see
 [powershell-remoting-eventlog-reference.md](powershell-remoting-eventlog-reference.md).
 For Active Directory/Group Policy cmdlets, see
@@ -26,7 +26,7 @@ Get-ChildItem | ForEach-Object { $_.Name.ToUpper() }
 Get-Process notepad | Stop-Process -WhatIf                 # preview a state-changing action
 ```
 `-WhatIf` on any cmdlet that supports `ShouldProcess` (most cmdlets that
-change state) shows what would happen without doing it — check before
+change state) shows what would happen without doing it. Check before
 running the real thing against production.
 
 ## Variables and types
@@ -130,9 +130,9 @@ Set-ExecutionPolicy RemoteSigned -Scope CurrentUser   # allow local scripts to r
   on a cmdlet's default error behavior means some failures silently
   continue the script instead of stopping it.
 - Prefer full cmdlet names and parameters in anything committed to a
-  repo — aliases (`gci`, `%`, `?`) and positional parameters read fine
+  repo: aliases (`gci`, `%`, `?`) and positional parameters read fine
   interactively but make scripts harder for someone else (or future you)
   to follow.
 - `[PSCustomObject]@{ Name = 'x'; Value = 1 }` is usually the right way to
-  build structured output — it formats cleanly with `Format-Table` and
+  build structured output. It formats cleanly with `Format-Table` and
   pipes into `Export-Csv`/`ConvertTo-Json` without extra work.
