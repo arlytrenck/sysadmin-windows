@@ -11,7 +11,7 @@
     visible and a baseline exists for incident work. Pair with
     Compare-Config-Drift.ps1 to diff two snapshots.
 
-    Secret-looking values are not collected — this captures structure and
+    Secret-looking values are not collected - this captures structure and
     state, not credentials.
 
 .PARAMETER OutDir

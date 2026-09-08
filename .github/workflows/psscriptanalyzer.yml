@@ -9,6 +9,10 @@ on:
     paths:
       - 'scripts/**.ps1'
       - '.github/workflows/psscriptanalyzer.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   analyze:
@@ -17,11 +21,50 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      # Windows PowerShell 5.1 reads a .ps1 without a BOM using the ANSI code
+      # page, so a UTF-8 em dash arrives as three CP1252 characters. The last
+      # of them is a curly quote, which ends any string it lands in and breaks
+      # the parse. Keeping the scripts ASCII-only avoids the whole class.
+      - name: Reject non-ASCII bytes in scripts
+        shell: pwsh
+        run: |
+          $bad = @()
+          foreach ($f in Get-ChildItem ./scripts -Filter *.ps1 -Recurse) {
+            $bytes = [IO.File]::ReadAllBytes($f.FullName)
+            if ($bytes | Where-Object { $_ -gt 127 }) { $bad += $f.FullName }
+          }
+          if ($bad) {
+            $bad | ForEach-Object { Write-Host "non-ASCII: $_" }
+            throw "Scripts must be ASCII-only so they parse under Windows PowerShell 5.1."
+          }
+          Write-Host "All scripts are ASCII-only."
+
+      # Catches syntax errors the analyzer would otherwise report as noise.
+      - name: Parse every script with the 5.1 grammar
+        shell: powershell
+        run: |
+          $failed = 0
+          foreach ($f in Get-ChildItem ./scripts -Filter *.ps1 -Recurse) {
+            $errors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile($f.FullName, [ref]$null, [ref]$errors)
+            if ($errors) {
+              $failed++
+              Write-Host "PARSE FAIL $($f.Name): $($errors[0].Message)"
+            }
+          }
+          if ($failed) { throw "$failed script(s) do not parse under Windows PowerShell 5.1." }
+          Write-Host "All scripts parse under Windows PowerShell $($PSVersionTable.PSVersion)."
+
+      # PSAvoidUsingWriteHost is excluded on purpose: these are interactive
+      # console tools whose output is meant for an operator, and the rule
+      # fires 191 times, which buries everything else.
       - name: Run PSScriptAnalyzer
         shell: pwsh
         run: |
+          Install-Module|
           Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
-          $results = Invoke-ScriptAnalyzer -Path ./scripts -Recurse -Severity Warning,Error
+          $results = Invoke-ScriptAnalyzer -Path ./scripts -Recurse -Severity Warning,Error `
+            -ExcludeRule PSAvoidUsingWriteHost
           $results | Format-Table -AutoSize
           if ($results | Where-Object Severity -eq 'Error') {
             Write-Error "PSScriptAnalyzer found error-level issues."
