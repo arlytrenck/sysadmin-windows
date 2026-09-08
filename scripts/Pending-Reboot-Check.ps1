@@ -37,8 +37,10 @@ if ($pfro -and $pfro.PendingFileRenameOperations) {
     $indicators += "Session Manager: PendingFileRenameOperations has $($pfro.PendingFileRenameOperations.Count) entries"
 }
 
-$cbsRebootInProgress = Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing' -Name 'RebootInProgress' -ErrorAction SilentlyContinue
-if ($cbsRebootInProgress) {
+# RebootInProgress is a subkey of the CBS key, the same as RebootPending above,
+# not a value stored under it. Querying it as a value never matched, so this
+# indicator silently never fired.
+if (Test-Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootInProgress') {
     $indicators += 'Component-Based Servicing: RebootInProgress flag set'
 }
 
@@ -50,7 +52,7 @@ try {
         $indicators += 'ConfigMgr client: DetermineIfRebootPending() reports a pending reboot'
     }
 } catch {
-    # ConfigMgr client not installed or WMI namespace unavailable - not an error
+    Write-Verbose "ConfigMgr client not present, or its WMI namespace is unavailable: $_"
 }
 
 Write-Host "=== Pending reboot indicators ==="

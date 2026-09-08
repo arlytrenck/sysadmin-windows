@@ -69,24 +69,41 @@ if ($CertPath) {
     }
 }
 
-foreach ($target in $Targets) {
-    $parts = $target -split ':'
-    $targetHost = $parts[0]
-    $port = if ($parts.Count -gt 1) { [int]$parts[1] } else { 443 }
+# Accept any cert: we want the expiry date, not a trust decision. Declared once
+# so the delegate is not rebuilt per target.
+$validationCallback = [System.Net.Security.RemoteCertificateValidationCallback] { param($s, $c, $ch, $e) $true }
 
+foreach ($target in $Targets) {
+    # Split off the port from the right so IPv6 literals ("[::1]:8443") survive.
+    if ($target -match '^\[(?<h>.+)\](?::(?<p>\d+))?$' -or
+        $target -match '^(?<h>[^:]+)(?::(?<p>\d+))?$') {
+        $targetHost = $Matches['h']
+        $port = if ($Matches['p']) { [int]$Matches['p'] } else { 443 }
+    } else {
+        Write-Warning "[UNKNOWN] $target - not a valid host[:port] value."
+        $worstStatus = [math]::Max($worstStatus, 1)
+        continue
+    }
+
+    $tcpClient = $null
+    $sslStream = $null
     try {
         $tcpClient = New-Object System.Net.Sockets.TcpClient($targetHost, $port)
-        # Accept any cert — we only want the expiry date, not a trust decision.
-        $validationCallback = [System.Net.Security.RemoteCertificateValidationCallback]{ param($s, $c, $ch, $e) $true }
         $sslStream = New-Object System.Net.Security.SslStream($tcpClient.GetStream(), $false, $validationCallback)
-        $sslStream.AuthenticateAsClient($targetHost)
+        # SslProtocols::None means "let the OS pick". The parameterless
+        # AuthenticateAsClient overload still negotiates TLS 1.0 on .NET
+        # Framework 4.6 and earlier, which TLS 1.2-only hosts refuse.
+        $sslStream.AuthenticateAsClient($targetHost, $null, [System.Security.Authentication.SslProtocols]::None, $false)
         $cert2 = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($sslStream.RemoteCertificate)
         Test-Expiry -Label "$targetHost`:$port" -NotAfter $cert2.NotAfter
-        $sslStream.Close()
-        $tcpClient.Close()
     } catch {
-        Write-Warning "[UNKNOWN] $targetHost`:$port — could not retrieve certificate: $_"
+        Write-Warning "[UNKNOWN] $targetHost`:$port - could not retrieve certificate: $_"
         $worstStatus = [math]::Max($worstStatus, 1)
+    } finally {
+        # Without this, a target that fails mid-handshake leaks its socket for
+        # the life of the process.
+        if ($sslStream) { $sslStream.Dispose() }
+        if ($tcpClient) { $tcpClient.Dispose() }
     }
 }
 

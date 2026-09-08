@@ -60,7 +60,7 @@ Get-Acl "AD:OU=Servers,DC=example,DC=com" | Select -ExpandProperty Access
 ```
 
 Delegation is best managed through the Delegation of Control Wizard in
-Active Directory Users and Computers for anything beyond a quick read —
+Active Directory Users and Computers for anything beyond a quick read:
 ACL edits via `Get-Acl`/`Set-Acl` on `AD:` paths are powerful but easy to
 get wrong and hard to audit after the fact.
 

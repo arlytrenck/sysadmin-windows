@@ -2,7 +2,7 @@
 
 Quick reference for inspecting and troubleshooting networking on Windows.
 The `Get-Net*`/`Test-Net*` cmdlet family (NetTCPIP module) covers most of
-what `netsh` used to be needed for — `netsh` is included below since it's
+what `netsh` used to be needed for: `netsh` is included below since it's
 still common in older scripts and some configuration only exposes itself
 there.
 
@@ -94,12 +94,12 @@ Test-NetConnection dc01 -CommonTCPPort SMB      # confirm SMB is actually reacha
 ## Notes
 
 - `Test-NetConnection` is the single most useful troubleshooting cmdlet
-  here — it combines ping, port-check, and route/interface info in one
+  here. It combines ping, port-check, and route/interface info in one
   call and returns a structured object instead of parsed text.
 - A `New-NetFirewallRule`/`Set-DnsClientServerAddress` change takes effect
   immediately; there's no separate "apply" step the way some GUI panels
-  imply — verify the change with the matching `Get-*` cmdlet right after.
-- `netsh` output is plain text meant for humans, not objects — prefer the
+  imply. Verify the change with the matching `Get-*` cmdlet right after.
+- `netsh` output is plain text meant for humans, not objects. Prefer the
   `Get-Net*`/`Test-Net*` cmdlets in anything scripted, and reach for
   `netsh` only for the handful of things (saved Wi-Fi keys, some legacy
   IPv4/IPv6 transition settings) that don't have a modern cmdlet yet.

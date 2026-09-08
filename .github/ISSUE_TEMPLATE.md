@@ -12,7 +12,7 @@
 
 **Script/doc affected:**
 
-**Environment** (Windows version, PowerShell version — `$PSVersionTable`,
+**Environment** (Windows version, PowerShell version: `$PSVersionTable`,
 domain-joined or not):
 
 **Expected behavior:**
