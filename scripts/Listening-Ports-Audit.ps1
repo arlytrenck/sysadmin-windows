@@ -44,7 +44,7 @@ $udp = Get-NetUDPEndpoint -ErrorAction SilentlyContinue |
 $udp | Format-Table -AutoSize | Out-String | Write-Host
 
 if (-not $AllowListPath) {
-    Write-Host "No allowlist given (-AllowListPath) — informational only."
+    Write-Host "No allowlist given (-AllowListPath) - informational only."
     exit 0
 }
 
