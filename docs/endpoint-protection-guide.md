@@ -11,12 +11,12 @@ checks a single host against several of the points below.
 - **Real-time protection should be on everywhere it isn't explicitly
   replaced by another product.** If a third-party AV/EDR product is the
   intended standard, verify it's actually installed and reporting
-  healthy on every host — Defender disabling itself in favor of a
+  healthy on every host: Defender disabling itself in favor of a
   product that then fails to start silently is a real and easy-to-miss
   gap.
 - **Don't leave real-time protection off after troubleshooting.** It's
   a common (and reasonable) step to temporarily disable it while
-  diagnosing a performance issue or a false-positive block — the
+  diagnosing a performance issue or a false-positive block. The
   failure mode is forgetting to turn it back on. Track and re-check
   any host where it was intentionally disabled.
 
@@ -27,7 +27,7 @@ checks a single host against several of the points below.
   if it lands there. A common source of scope creep: a vendor's install
   guide says "exclude this folder for performance," and the exclusion
   outlives the reason it was added.
-- **Review exclusions periodically**, not just when adding a new one —
+- **Review exclusions periodically**, not just when adding a new one:
   an exclusion added for software that's since been removed should be
   removed with it.
 - **Prefer narrow, specific exclusions** (a single file or process)
@@ -36,26 +36,26 @@ checks a single host against several of the points below.
 
 ## Signature and platform updates
 
-- **Signatures should update at least daily** — `Defender-Status-Check.ps1`'s
+- **Signatures should update at least daily**: `Defender-Status-Check.ps1`'s
   default 3-day threshold is a "something is broken" alarm, not a
   target; a healthy, connected host typically updates signatures
   multiple times a day.
 - **A host with consistently stale signatures usually has a connectivity
-  or WSUS/update-source problem**, not a Defender problem specifically —
-  check whether the host can reach its update source at all before
+  or WSUS/update-source problem**, not a Defender problem specifically.
+  Check whether the host can reach its update source at all before
   troubleshooting Defender itself.
 - **Platform updates (the Defender engine itself, not just signatures)
-  matter too** — they ship through Windows Update and carry detection
+  matter too**. They ship through Windows Update and carry detection
   and performance improvements independent of signature freshness.
 
 ## Scanning
 
 - **Scheduled quick scans plus periodic full scans** is the standard
-  baseline — real-time protection catches most things as they happen,
+  baseline: real-time protection catches most things as they happen,
   but a scan catches anything that arrived before protection was
   enabled or through a path real-time monitoring doesn't cover.
 - **A host with no scan history is a visibility gap**, not necessarily
-  an active compromise — but it means you have no evidence either way,
+  an active compromise, but it means you have no evidence either way,
   which is its own problem worth fixing.
 
 ## Alerting and response
@@ -65,11 +65,11 @@ checks a single host against several of the points below.
   rather than relying on someone noticing a balloon notification on a
   server that runs headless.
 - **Treat a detection on a server differently from one on a workstation**
-  — a server compromise usually has a larger blast radius (more
+. A server compromise usually has a larger blast radius (more
   connected systems, more privileged accounts nearby) and warrants a
   faster, more thorough response, including checking
   [incident-response-runbook.md](incident-response-runbook.md) rather
   than just clearing the alert.
 - **A single detection that "looks handled" is still worth a quick
-  root-cause pass** — how did the file get there in the first place is
+  root-cause pass**: how did the file get there in the first place is
   often more informative than the detection itself.

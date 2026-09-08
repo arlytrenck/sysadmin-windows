@@ -7,7 +7,7 @@ snapshot script is
 
 ## Profiles
 
-Three profiles — `Domain`, `Private`, `Public` — each with its own default
+Three profiles: `Domain`, `Private`, `Public`. Each with its own default
 actions. A server on a trusted LAN should be `Domain` (if joined) or
 `Private`, never `Public`.
 
@@ -88,7 +88,7 @@ New-NetFirewallRule -DisplayName 'Block telemetry.exe out' -Direction Outbound `
   -Action Block -Program 'C:\path\telemetry.exe' -Profile Any
 ```
 
-Flipping `DefaultOutboundAction` to `Block` on a server is a project — you
+Flipping `DefaultOutboundAction` to `Block` on a server is a project. You
 must first enumerate and allow everything it legitimately needs.
 
 ## Logging
@@ -100,7 +100,7 @@ Set-NetFirewallProfile -Name Domain,Private -LogAllowed True -LogBlocked True `
 Get-Content $env:SystemRoot\System32\LogFiles\Firewall\pfirewall.log -Tail 40 -Wait
 ```
 
-Turn `LogAllowed` off again after you've diagnosed the issue — it's noisy.
+Turn `LogAllowed` off again after you've diagnosed the issue. It's noisy.
 The corresponding event-log channel:
 
 ```powershell
@@ -116,7 +116,7 @@ netsh advfirewall reset                                  :: back to Windows defa
 ```
 
 Group Policy firewall rules are merged with local rules; if a rule "won't
-delete" or keeps coming back, it's coming from a GPO —
+delete" or keeps coming back, it's coming from a GPO:
 `gpresult /h` and check *Windows Defender Firewall with Advanced Security*.
 `Get-NetFirewallRule -PolicyStore ActiveStore` shows the effective merged
 set; `-PolicyStore <GPO>` shows just that store.

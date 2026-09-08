@@ -3,18 +3,18 @@
 A general-purpose starting runbook for responding to a suspected security
 incident on a Windows server (compromised account, malware, unexpected
 access). Adapt to your environment and any regulatory/contractual
-notification obligations — those are outside this document's scope.
+notification obligations. Those are outside this document's scope.
 
 ## 1. Assess
 
-- What triggered the alert — AV/EDR detection, anomalous logon,
+- What triggered the alert: AV/EDR detection, anomalous logon,
   unexpected process, a report from a user?
 - Is this host domain-joined? What does it host (data classification,
   dependent services)?
 - Check `user-activity-report.ps1` for recent logons, failed logons, and
   lockouts around the suspected timeframe.
 - Do NOT immediately reboot or shut down if forensic evidence (memory,
-  running processes) may need to be preserved — consult your incident
+  running processes) may need to be preserved: consult your incident
   response policy first.
 
 ## 2. Contain
@@ -59,12 +59,12 @@ AppData).
 ## 4. Mitigate
 
 - Remove confirmed persistence mechanisms (scheduled tasks, services,
-  run keys) only after you've documented them — don't destroy evidence
+  run keys) only after you've documented them. Don't destroy evidence
   before it's captured if a forensic review is planned.
 - Rotate credentials for the affected account(s), and for any account that
   may have been used to move laterally from this host.
 - Patch or remediate the specific vulnerability/misconfiguration that
-  allowed the incident, once identified — containment alone doesn't fix
+  allowed the incident, once identified: containment alone doesn't fix
   root cause.
 
 ## 5. Verify

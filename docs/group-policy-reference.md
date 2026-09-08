@@ -17,11 +17,11 @@ DC.
   Inheritance*.
 - **Block Inheritance** on an OU → stops inheriting from above (except
   Enforced links).
-- **Security filtering** — a GPO only applies to principals with *Read* +
+- **Security filtering**: a GPO only applies to principals with *Read* +
   *Apply group policy*. Default is `Authenticated Users`.
-- **WMI filter** — an extra per-object test (e.g. "only laptops", "only
+- **WMI filter**: an extra per-object test (e.g. "only laptops", "only
   Server 2022").
-- **Loopback processing** (Merge/Replace) — apply *user* settings based on
+- **Loopback processing** (Merge/Replace): apply *user* settings based on
   the *computer's* location (kiosks, RDS hosts, servers).
 - Refresh: every ~90 min (+ random up to 30) for members, 5 min for DCs, and
   at boot/logon. Force with `gpupdate /force`.
@@ -84,7 +84,7 @@ $f = Get-ADObject -Filter "objectClass -eq 'msWMI-Som' -and msWMI-Name -eq 'Serv
 ```
 
 For anything beyond registry values (services, security options, scheduled
-tasks, drive maps), use **`gpmc.msc`** / **`gpme.msc`** — the PowerShell
+tasks, drive maps), use **`gpmc.msc`** / **`gpme.msc`**, the PowerShell
 module only covers registry-backed policy and Group Policy Preferences
 registry items.
 
@@ -98,7 +98,7 @@ Import-GPO -BackupGpoName 'Server Baseline' -TargetName 'Server Baseline v2' `
   -Path C:\gpo-backups -CreateIfNeeded -MigrationTable C:\mig.migtable
 ```
 
-Schedule `Backup-GPO -All` — GPO changes are otherwise unversioned and
+Schedule `Backup-GPO -All`: GPO changes are otherwise unversioned and
 un-undoable. Consider a git repo of the exported `Get-GPOReport` XML so
 diffs are reviewable.
 
@@ -135,12 +135,12 @@ dcgpofix /target:both                                  # LAST RESORT: rebuild th
 
 Common causes of "GPO not applying":
 - Object is in the wrong OU (GPOs don't follow group membership, only
-  location — except security filtering).
+  location: except security filtering).
 - Security filtering / WMI filter excludes it; RSoP shows it under "Denied".
 - Slow-link detection skipped it (VPN / metered).
-- Replication lag — the DC the client used doesn't have the change yet
+- Replication lag, the DC the client used doesn't have the change yet
   (`repadmin /replsummary`).
 - Client-side extension error (check the Operational log).
 - A higher **Enforced** GPO is winning; RSoP's "Winning GPO" column names it.
 - `SYSVOL` / DFSR not replicating the GPO's files (versions in AD and SYSVOL
-  disagree — `Get-GPO` shows both `DSVersion` and `SysvolVersion`).
+  disagree: `Get-GPO` shows both `DSVersion` and `SysvolVersion`).

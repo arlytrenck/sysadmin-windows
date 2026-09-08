@@ -1,7 +1,7 @@
 # Contributing
 
 Thanks for considering a contribution. This is a small, personal collection
-of sysadmin scripts and docs, kept simple on purpose — contributions are
+of sysadmin scripts and docs, kept simple on purpose: contributions are
 welcome but should fit that spirit.
 
 ## Reporting a bug or suggesting a change
@@ -9,13 +9,13 @@ welcome but should fit that spirit.
 Open an issue describing:
 - What script or doc is affected.
 - What you expected vs. what actually happened (for a script, include the
-  Windows version and PowerShell version if relevant — `$PSVersionTable`).
+  Windows version and PowerShell version if relevant: `$PSVersionTable`).
 - Any error output.
 
 ## Submitting a change
 
 1. Fork the repo and create a branch for your change.
-2. Keep changes focused — one script/doc per pull request is easier to
+2. Keep changes focused. One script/doc per pull request is easier to
    review than a bundle of unrelated fixes.
 3. For scripts:
    - Match the existing style: comment-based help (`.SYNOPSIS`,
@@ -23,9 +23,9 @@ Open an issue describing:
      rather than positional ones.
    - Use `SupportsShouldProcess`/`-WhatIf` for anything that changes
      system state.
-   - Scripts should fail safely — prefer erroring out over guessing, and
+   - Scripts should fail safely. Prefer erroring out over guessing, and
      avoid destructive actions without a clear opt-in flag.
-   - Run PSScriptAnalyzer locally before submitting — CI runs the same
+   - Run PSScriptAnalyzer locally before submitting: CI runs the same
      check (`Invoke-ScriptAnalyzer -Path .\scripts -Recurse`).
 4. For docs:
    - Keep the same tone: practical, concrete commands over abstract
