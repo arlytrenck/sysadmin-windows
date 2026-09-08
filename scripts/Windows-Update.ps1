@@ -8,6 +8,14 @@
     and internet-connected) to provide a scriptable update workflow
     suitable for scheduled maintenance windows.
 
+    The module version is pinned rather than left to float to "whatever
+    PSGallery has today". An unattended -Force install of an unpinned
+    module is a supply-chain surface on a server: a new release lands on
+    every host the next time this runs, with no review and no way to
+    reproduce which version acted on an older run's log. Bump
+    -ModuleVersion deliberately, on your own schedule, after checking the
+    release notes.
+
 .PARAMETER Install
     Actually install available updates. Without this, only scans and lists.
 
@@ -17,15 +25,25 @@
 .PARAMETER LogPath
     Where to write the log (default: C:\Windows\Temp\windows-update.log).
 
+.PARAMETER ModuleVersion
+    Exact PSWindowsUpdate version to require (default: 2.2.1.5, latest on
+    PSGallery as of this writing). Installed with -RequiredVersion if not
+    already present at that version, and imported with -RequiredVersion so
+    a newer or older copy on the host is never picked up silently.
+
 .EXAMPLE
     .\Windows-Update.ps1 -Install -RebootIfNeeded
+
+.EXAMPLE
+    .\Windows-Update.ps1 -ModuleVersion 2.2.1.4 -Install
 #>
 
 [CmdletBinding(SupportsShouldProcess)]
 param(
     [switch]$Install,
     [switch]$RebootIfNeeded,
-    [string]$LogPath = 'C:\Windows\Temp\windows-update.log'
+    [string]$LogPath = 'C:\Windows\Temp\windows-update.log',
+    [string]$ModuleVersion = '2.2.1.5'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -37,14 +55,17 @@ function Write-Log {
     Add-Content -Path $LogPath -Value $line
 }
 
-if (-not (Get-Module -ListAvailable -Name PSWindowsUpdate)) {
-    Write-Log "PSWindowsUpdate module not found; attempting to install from PSGallery."
-    if ($PSCmdlet.ShouldProcess('PSWindowsUpdate', 'Install module')) {
-        Install-Module -Name PSWindowsUpdate -Force -Scope AllUsers -ErrorAction Stop
+$pinned = Get-Module -ListAvailable -Name PSWindowsUpdate |
+    Where-Object { $_.Version -eq $ModuleVersion }
+
+if (-not $pinned) {
+    Write-Log "PSWindowsUpdate $ModuleVersion not found; installing from PSGallery."
+    if ($PSCmdlet.ShouldProcess("PSWindowsUpdate $ModuleVersion", 'Install module')) {
+        Install-Module -Name PSWindowsUpdate -RequiredVersion $ModuleVersion -Force -Scope AllUsers -ErrorAction Stop
     }
 }
 
-Import-Module PSWindowsUpdate
+Import-Module -Name PSWindowsUpdate -RequiredVersion $ModuleVersion -ErrorAction Stop
 
 Write-Log "Scanning for available updates..."
 $updates = Get-WindowsUpdate -ErrorAction SilentlyContinue
