@@ -54,7 +54,7 @@ New-VirtualDisk -StoragePoolFriendlyName "Pool1" -FriendlyName "VDisk1" `
 Get-VirtualDisk | Get-StorageJob                                  # in-progress resync/repair status
 ```
 `ResiliencySettingName`: `Simple` (no redundancy, striping only), `Mirror`
-(survive a disk loss, like RAID1/10), `Parity` (like RAID5/6 — better
+(survive a disk loss, like RAID1/10), `Parity` (like RAID5/6: better
 capacity, much slower on HDDs, avoid for anything latency-sensitive).
 
 ## NTFS permissions
@@ -81,7 +81,7 @@ Get-SmbShareAccess -Name "Data"                              # share-level permi
 Remove-SmbShare -Name "Data"
 ```
 Share-level permissions (`Get-SmbShareAccess`) and NTFS permissions
-(`icacls`/`Get-Acl`) are evaluated together — the effective access is
+(`icacls`/`Get-Acl`) are evaluated together. The effective access is
 whichever is *more restrictive*. A share granting Full Control on top of
 NTFS Read still only allows Read.
 
@@ -96,14 +96,14 @@ Optimize-Volume -DriveLetter D -Defrag             # defragment (HDD) or -ReTrim
 
 ## Notes
 
-- `Get-Volume`/`Get-Partition` return live objects — filter/select on them
+- `Get-Volume`/`Get-Partition` return live objects: filter/select on them
   directly rather than parsing text the way older `diskpart` scripts had
   to.
 - Prefer Mirror over Parity for Storage Spaces virtual disks backing
-  anything latency-sensitive (databases, VM storage) — parity's write
+  anything latency-sensitive (databases, VM storage): parity's write
   penalty is much larger on spinning disks than the RAID5/6 analogy
   suggests.
-- Confirm `Get-PartitionSupportedSize` before a shrink — Windows will
+- Confirm `Get-PartitionSupportedSize` before a shrink: Windows will
   refuse to shrink past whatever unmovable files currently sit near the
   end of the volume, and the error message alone doesn't make that
   obvious.
