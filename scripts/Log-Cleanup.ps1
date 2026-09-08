@@ -51,7 +51,7 @@ foreach ($logName in $LogNames) {
                 Write-Host "  Exported matching entries to $exportPath"
             }
         } elseif ($DryRun) {
-            Write-Host "  (dry run — would export/archive these entries)"
+            Write-Host "  (dry run - would export/archive these entries)"
         }
     } catch {
         Write-Warning "Could not process log '$logName': $_"

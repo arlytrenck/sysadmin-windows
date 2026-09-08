@@ -34,7 +34,7 @@ if ($AllowList.Count -gt 0) {
     if ($unexpected) {
         $unexpected | Select-Object Name, ObjectClass | Format-Table -AutoSize | Out-String | Write-Host
     } else {
-        Write-Host "None — every member matches the allow-list."
+        Write-Host "None - every member matches the allow-list."
     }
 }
 

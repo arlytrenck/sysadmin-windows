@@ -22,7 +22,7 @@ Get-DnsServerForwarder
 ```
 
 **AD-integrated primary** (`-ReplicationScope Domain`) is almost always right
-in a domain — zone data replicates with AD, supports secure dynamic update,
+in a domain: zone data replicates with AD, supports secure dynamic update,
 multi-master. Use standard primary/secondary only for non-AD or DMZ DNS.
 
 `-DynamicUpdate Secure` (AD zones) lets domain members register their own
@@ -59,7 +59,7 @@ Get-DnsServerZoneAging -Name corp.example.com
 ```
 
 `NoRefresh + Refresh` = minimum age before a record can be scavenged (default
-14 days total). Turn it on **deliberately** on a maintenance window — a
+14 days total). Turn it on **deliberately** on a maintenance window. A
 misconfigured aging start can delete valid static records that lack a
 timestamp (static records normally have timestamp 0 = never scavenged; verify
 before enabling).
@@ -79,7 +79,7 @@ dnscmd /info ; dnscmd /zoneprint corp.example.com
 ```
 
 Health checks that matter:
-- `nslookup` the DC's own `_ldap._tcp.dc._msdcs.<domain>` SRV records — if
+- `nslookup` the DC's own `_ldap._tcp.dc._msdcs.<domain>` SRV records: if
   those are missing, domain logon and replication break.
 - Every DC should list **itself last** (or 127.0.0.1 last) in its NIC DNS,
   with a *partner* DC first, to avoid the "island" problem.
@@ -128,7 +128,7 @@ Set-DhcpServerv4DnsSetting -ScopeId 10.0.0.0 -DynamicUpdates Always `
 ```
 
 If DHCP registers records in a **secure** AD zone, run the DHCP service as a
-dedicated service account and add it to the **DnsUpdateProxy** group — or
+dedicated service account and add it to the **DnsUpdateProxy** group, or
 records get orphaned with the wrong owner and can't be updated later. Know
 the DnsUpdateProxy security trade-off before using it.
 
@@ -142,7 +142,7 @@ Invoke-DhcpServerv4FailoverReplication -Name 'LAN-failover' -Force   # after edi
 ```
 
 **Hot standby** for a clear primary/backup; **load balance** for two equal
-servers. Remember to re-run replication after any scope/option change — it is
+servers. Remember to re-run replication after any scope/option change. It is
 not automatic for config, only for leases.
 
 ## Backup / health
@@ -158,6 +158,6 @@ Get-WinEvent -LogName 'Microsoft-Windows-Dhcp-Server/Operational' -MaxEvents 50
 
 Common DHCP issues: server not authorized in AD (it refuses to hand out
 leases); a rogue DHCP server on the LAN (`Get-DhcpServerInDC` lists only
-authorized ones — find rogues with a client packet capture or
+authorized ones: find rogues with a client packet capture or
 `dhcploc.exe`); pool exhaustion (shorten lease time or widen the range);
 failover partners out of sync (re-run replication).

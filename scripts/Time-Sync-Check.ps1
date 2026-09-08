@@ -7,7 +7,7 @@
 
 .PARAMETER ThresholdMs
     Warn if the reported offset exceeds this many milliseconds
-    (default: 1000 — Kerberos itself tolerates up to 5 minutes, but
+    (default: 1000 - Kerberos itself tolerates up to 5 minutes, but
     anything past a second usually means the source is unreachable or
     the service is unhealthy).
 
@@ -36,7 +36,7 @@ $statusRaw = & w32tm /query /status 2>&1
 $statusRaw | Write-Host
 
 if ($LASTEXITCODE -ne 0) {
-    Write-Warning "w32tm /query /status failed — host may not be configured for NTP."
+    Write-Warning "w32tm /query /status failed - host may not be configured for NTP."
     exit 2
 }
 
