@@ -83,9 +83,12 @@ Start here:
 - [troubleshooting-guide.md](troubleshooting-guide.md) — reference for
   specific symptoms once you do.
 
-Then:
+Then the runbook that matches:
 
 - [incident-response-runbook.md](incident-response-runbook.md)
+- [disk-full-emergency-runbook.md](disk-full-emergency-runbook.md) — a
+  volume at 100%: VSS shadow storage, the component store, and SQL Server
+  log bloat, in the order worth checking them.
 
 ## Process and templates
 

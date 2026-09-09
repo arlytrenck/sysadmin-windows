@@ -47,6 +47,7 @@ sysadmin-windows/
     ├── windows-server-bootstrap-checklist.md   # day-0 procedure for a fresh Windows Server
     ├── server-hardening-checklist.md
     ├── incident-response-runbook.md
+    ├── disk-full-emergency-runbook.md          # VSS shadow storage, WinSxS, SQL log bloat
     ├── troubleshooting-guide.md
     ├── active-directory-reference.md
     ├── recovery-access-and-directory-services-runbook.md  # DSRM, break-glass, AD recovery
