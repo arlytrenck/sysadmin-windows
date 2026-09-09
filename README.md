@@ -38,8 +38,12 @@ sysadmin-windows/
 │   ├── Export-HyperV-Config.ps1       # Hyper-V host + per-VM settings -> one JSON
 │   ├── Listening-Ports-Audit.ps1      # every listening TCP/UDP endpoint, flag vs. an allowlist
 │   ├── Time-Sync-Check.ps1            # W32Time sync status + offset threshold
-│   └── BitLocker-Status-Audit.ps1     # flag unencrypted/suspended/protector-less volumes
+│   ├── BitLocker-Status-Audit.ps1     # flag unencrypted/suspended/protector-less volumes
+│   ├── Backup-Verify.ps1              # assert backups exist, are recent, and open cleanly
+│   └── Memory-Pressure-Check.ps1      # commit charge, pagefile, top consumers, low-memory events
 └── docs/
+    ├── README.md                               # index of everything below, grouped by task
+    ├── assets/triage-flow.svg                  # the troubleshooting flowchart as a diagram
     ├── windows-server-bootstrap-checklist.md   # day-0 procedure for a fresh Windows Server
     ├── server-hardening-checklist.md
     ├── incident-response-runbook.md
@@ -49,6 +53,10 @@ sysadmin-windows/
     ├── group-policy-reference.md               # GPO structure, RSoP, PowerShell editing, baseline settings
     ├── dns-dhcp-reference.md                   # Windows DNS + DHCP roles: zones, scavenging, scopes, failover
     ├── powershell-remoting-eventlog-reference.md
+    ├── scheduled-tasks-cheatsheet.md           # tasks, run-as accounts, Last Run Result codes
+    ├── robocopy-cheatsheet.md                  # mirror/copy, the retry defaults, the exit-code bitmask
+    ├── certificate-management-reference.md     # stores, CSRs, private key ACLs, service bindings
+    ├── secret-rotation-runbook.md              # rotate a credential with rollback; gMSA and LAPS
     ├── powershell-cheatsheet.md
     ├── windows-networking-cheatsheet.md
     ├── windows-firewall-cheatsheet.md          # Defender Firewall from PowerShell: scoped rules, profiles, logging
@@ -102,6 +110,10 @@ PowerShell session.
   `Disk-Health-Check.ps1`
 - Defender PowerShell module (built in on Windows 10/11 and Server
   2016+) for `Defender-Status-Check.ps1`
+- No extra modules for `Backup-Verify.ps1` or `Memory-Pressure-Check.ps1`;
+  both use in-box .NET and CIM only. `Memory-Pressure-Check.ps1` needs an
+  elevated session to read low-memory events from the System log, and
+  reports the rest either way
 
 ## Contributing
 
