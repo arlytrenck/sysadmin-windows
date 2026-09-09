@@ -6,6 +6,12 @@ look first, in what order, before diving deep. Complements
 reference for specific symptoms; this document is about *where to
 start* when you don't yet know which category the problem is in.
 
+![Windows Server triage flow: work top to bottom through RDP and WinRM
+reachability, CPU, commit charge, disk, then recent changes and the
+event log, with the script to run at each step.](assets/triage-flow.svg)
+
+The same flow in text, with the follow-up detail for each branch:
+
 ## Start here: what's the symptom?
 
 ```
