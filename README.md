@@ -45,6 +45,7 @@ sysadmin-windows/
     ├── incident-response-runbook.md
     ├── troubleshooting-guide.md
     ├── active-directory-reference.md
+    ├── recovery-access-and-directory-services-runbook.md  # DSRM, break-glass, AD recovery
     ├── group-policy-reference.md               # GPO structure, RSoP, PowerShell editing, baseline settings
     ├── dns-dhcp-reference.md                   # Windows DNS + DHCP roles: zones, scavenging, scopes, failover
     ├── powershell-remoting-eventlog-reference.md
@@ -64,6 +65,7 @@ sysadmin-windows/
     ├── disaster-recovery-plan-template.md
     ├── troubleshooting-flowchart.md
     ├── windows-in-the-homelab.md
+    ├── resource-library.md                     # upstream docs for the tools referenced here
     └── glossary.md
 ```
 

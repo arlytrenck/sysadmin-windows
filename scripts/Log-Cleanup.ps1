@@ -39,9 +39,11 @@ Write-Host ""
 
 foreach ($logName in $LogNames) {
     try {
-        $oldEvents = Get-WinEvent -LogName $logName -ErrorAction SilentlyContinue |
-            Where-Object { $_.TimeCreated -lt $cutoff }
-        $count = ($oldEvents | Measure-Object).Count
+        # Filter server-side on EndTime rather than pulling the whole log into
+        # the pipeline to count; this matches how every other script here
+        # queries the event log, and a large Security log makes the difference.
+        $count = (Get-WinEvent -FilterHashtable @{ LogName = $logName; EndTime = $cutoff } -ErrorAction SilentlyContinue |
+            Measure-Object).Count
         Write-Host "$logName`: $count entries older than $RetentionDays days"
 
         if ($count -gt 0 -and -not $DryRun) {
