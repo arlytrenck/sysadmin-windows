@@ -5,9 +5,10 @@
 
 A collection of Windows Server administration scripts, runbooks, and
 reference documentation, gathered from day-to-day homelab and small-fleet
-operations. Companion repo to
-[sysadmin-linux](https://github.com/arlytrenck/sysadmin-linux), which
-covers the same ground for Linux.
+operations. Companion repos to
+[sysadmin-linux](https://github.com/arlytrenck/sysadmin-linux) and
+[sysadmin-macos](https://github.com/arlytrenck/sysadmin-macos), which
+cover the same ground for Linux and macOS.
 
 ## Layout
 
