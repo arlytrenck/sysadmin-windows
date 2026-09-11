@@ -10,6 +10,34 @@ operations. Companion repos to
 [sysadmin-macos](https://github.com/arlytrenck/sysadmin-macos), which
 cover the same ground for Linux and macOS.
 
+## Why this repo exists
+
+Most of what's here started as a one-off script written to solve a single
+problem on a single server, then got generalized once the same problem
+showed up again somewhere else. Keeping the toolkit split by platform
+instead of by task keeps that generalization cheap: this repo only needs
+PowerShell and whatever module a given script imports, checked with one
+linter (PSScriptAnalyzer) in CI, rather than juggling PowerShell and Bash
+review in the same pull request.
+
+Day to day, the scripts get read before they get run. Every one carries
+comment-based help, so `Get-Help .\Name.ps1 -Full` explains what it does
+without opening the source, and anything that changes system state
+supports `-WhatIf`. The docs get used at least as often as the scripts: a
+reference for Group Policy, DNS/DHCP, or Hyper-V gets opened far more
+often than any single script gets run, because most days the actual work
+is a command whose shape is familiar but not the exact parameters.
+
+The same step that makes a script reusable across a handful of servers,
+parameterizing its paths, thresholds, and service names, is most of the
+work needed to make it reusable against someone else's, which is why this
+is published rather than kept in a private folder. A script that only
+works with one vendor's product mostly helps the people already paying
+for that vendor, so anything like that is out of scope by design (see
+[CONTRIBUTING.md](CONTRIBUTING.md)). Every requirement a script needs is
+called out explicitly below, so you can tell before cloning whether it
+applies to your environment at all.
+
 ## Layout
 
 ```
