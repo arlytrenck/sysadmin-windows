@@ -37,9 +37,6 @@ if ($pfro -and $pfro.PendingFileRenameOperations) {
     $indicators += "Session Manager: PendingFileRenameOperations has $($pfro.PendingFileRenameOperations.Count) entries"
 }
 
-# RebootInProgress is a subkey of the CBS key, the same as RebootPending above,
-# not a value stored under it. Querying it as a value never matched, so this
-# indicator silently never fired.
 if (Test-Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootInProgress') {
     $indicators += 'Component-Based Servicing: RebootInProgress flag set'
 }

@@ -22,7 +22,7 @@ Get-LocalGroupMember -Group 'Administrators' | Format-Table Name, ObjectClass, P
     Out-String | Write-Host
 
 Write-Host "=== Local accounts with passwords that never expire ==="
-Get-LocalUser | Where-Object { $_.PasswordExpires -eq $null -and $_.Enabled } |
+Get-LocalUser | Where-Object { $null -eq $_.PasswordExpires -and $_.Enabled } |
     Format-Table Name, Enabled, LastLogon -AutoSize | Out-String | Write-Host
 
 Write-Host "=== Enabled accounts that have never logged on ==="

@@ -192,7 +192,7 @@ if ($EventDays -gt 0) {
             Write-Host "      $message"
             $flagged++
         }
-    } catch [Exception] {
+    } catch {
         # Get-WinEvent throws rather than returning an empty set when nothing
         # matches, so "no events" arrives here as an error and is the good case.
         if ($_.Exception.Message -notmatch 'No events were found') {
