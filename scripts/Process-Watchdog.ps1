@@ -20,7 +20,7 @@
     .\Process-Watchdog.ps1 -CpuThresholdSeconds 1800 -MemThresholdMB 4096
 #>
 
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess)]
 param(
     [int]$CpuThresholdSeconds = 3600,
     [int]$MemThresholdMB = 2048,
@@ -40,8 +40,10 @@ if ($overCpu) {
     $flagged++
     if ($Kill) {
         foreach ($p in $overCpu) {
-            Write-Host "  Stopping PID $($p.Id) ($($p.ProcessName))"
-            Stop-Process -Id $p.Id -Force
+            if ($PSCmdlet.ShouldProcess("$($p.ProcessName) (PID $($p.Id))", "Stop-Process")) {
+                Write-Host "  Stopping PID $($p.Id) ($($p.ProcessName))"
+                Stop-Process -Id $p.Id -Force
+            }
         }
     }
 } else {
@@ -57,8 +59,10 @@ if ($overMem) {
     $flagged++
     if ($Kill) {
         foreach ($p in $overMem) {
-            Write-Host "  Stopping PID $($p.Id) ($($p.ProcessName))"
-            Stop-Process -Id $p.Id -Force
+            if ($PSCmdlet.ShouldProcess("$($p.ProcessName) (PID $($p.Id))", "Stop-Process")) {
+                Write-Host "  Stopping PID $($p.Id) ($($p.ProcessName))"
+                Stop-Process -Id $p.Id -Force
+            }
         }
     }
 } else {

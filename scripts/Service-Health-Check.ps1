@@ -19,7 +19,7 @@
     .\Service-Health-Check.ps1 -List
 #>
 
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess)]
 param(
     [string[]]$ServiceNames = @(),
     [switch]$List,
@@ -53,7 +53,7 @@ foreach ($name in $ServiceNames) {
     } else {
         $anyDown = $true
         Write-Warning "[DOWN]    $name ($($svc.DisplayName)) is $($svc.Status)"
-        if ($Restart) {
+        if ($Restart -and $PSCmdlet.ShouldProcess($name, "Start-Service")) {
             try {
                 Start-Service -Name $name
                 Start-Sleep -Seconds 2
