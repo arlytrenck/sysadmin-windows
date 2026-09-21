@@ -37,10 +37,14 @@ $tasks | Where-Object { $_.Settings.Hidden } |
     Select-Object TaskName, TaskPath | Format-Table -AutoSize | Out-String | Write-Host
 
 Write-Host "=== Tasks with an action pointing at a user-writable path (Temp/Downloads/AppData) ==="
+# Look at the arguments too: "powershell.exe -File C:\Users\Public\x.ps1" has a
+# harmless Execute and a payload in Arguments. Environment-variable spellings
+# (%TEMP%, %APPDATA%) are matched as well as expanded paths.
+$writable = '\\Temp\\|\\Downloads\\|\\AppData\\|\\Users\\Public\\|%temp%|%tmp%|%appdata%|%localappdata%|%public%|%userprofile%'
 foreach ($task in $tasks) {
     foreach ($action in $task.Actions) {
         $exec = $action.Execute
-        if ($exec -and ($exec -match '\\Temp\\|\\Downloads\\|\\AppData\\')) {
+        if ($exec -and (("$exec $($action.Arguments)") -match $writable)) {
             "  {0,-40} -> {1} {2}" -f $task.TaskName, $exec, $action.Arguments | Write-Host
         }
     }

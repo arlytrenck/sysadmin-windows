@@ -18,8 +18,14 @@ param()
 $ErrorActionPreference = 'SilentlyContinue'
 
 Write-Host "=== Local Administrators group membership ==="
-Get-LocalGroupMember -Group 'Administrators' | Format-Table Name, ObjectClass, PrincipalSource -AutoSize |
-    Out-String | Write-Host
+# By well-known SID: the group's name is localized on non-English installs.
+try {
+    Get-LocalGroupMember -SID 'S-1-5-32-544' -ErrorAction Stop |
+        Format-Table Name, ObjectClass, PrincipalSource -AutoSize | Out-String | Write-Host
+} catch {
+    Write-Host "Could not read the group: $($_.Exception.Message)"
+    Write-Host "(A member that no longer resolves - a deleted domain account - breaks this cmdlet; Local-Admin-Audit.ps1 reads around it.)"
+}
 
 Write-Host "=== Local accounts with passwords that never expire ==="
 Get-LocalUser | Where-Object { $null -eq $_.PasswordExpires -and $_.Enabled } |

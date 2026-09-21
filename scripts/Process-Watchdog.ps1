@@ -14,7 +14,19 @@
     2048).
 
 .PARAMETER Kill
-    Stop flagged processes (default: report only).
+    Stop flagged processes (default: report only). Processes named in
+    -Protect are reported but never stopped.
+
+.PARAMETER Protect
+    Process names -Kill will not touch, however much CPU or memory they
+    use. The default covers the ones whose death takes the host down or
+    takes a workload with it: the session and security core (csrss,
+    lsass, winlogon, services, smss, wininit, svchost), the shell and
+    compositor, Defender, Hyper-V's per-VM worker processes (vmwp, vmmem)
+    and SQL Server.
+
+.NOTES
+    Exit codes: 0 = nothing flagged; 1 = at least one process flagged.
 
 .EXAMPLE
     .\Process-Watchdog.ps1 -CpuThresholdSeconds 1800 -MemThresholdMB 4096
@@ -24,11 +36,35 @@
 param(
     [int]$CpuThresholdSeconds = 3600,
     [int]$MemThresholdMB = 2048,
-    [switch]$Kill
+    [switch]$Kill,
+    [string[]]$Protect = @(
+        'Idle', 'System', 'Registry', 'Memory Compression', 'smss', 'csrss', 'wininit',
+        'winlogon', 'services', 'lsass', 'svchost', 'fontdrvhost', 'dwm', 'explorer',
+        'MsMpEng', 'vmwp', 'vmmem', 'vmms', 'sqlservr'
+    )
 )
 
+# Reads tolerate a process exiting mid-scan; the kill path below does not, so
+# it passes -ErrorAction Stop and reports what actually happened.
 $ErrorActionPreference = 'SilentlyContinue'
 $flagged = 0
+
+function Stop-Flagged {
+    [CmdletBinding(SupportsShouldProcess)]
+    param($Process, [string[]]$ProtectedNames)
+    if ($ProtectedNames -contains $Process.ProcessName) {
+        Write-Host "  Skipping protected process $($Process.ProcessName) (PID $($Process.Id))"
+        return
+    }
+    if ($PSCmdlet.ShouldProcess("$($Process.ProcessName) (PID $($Process.Id))", "Stop-Process")) {
+        try {
+            Stop-Process -Id $Process.Id -Force -ErrorAction Stop
+            Write-Host "  Stopped PID $($Process.Id) ($($Process.ProcessName))"
+        } catch {
+            Write-Warning "  Could not stop PID $($Process.Id) ($($Process.ProcessName)): $($_.Exception.Message)"
+        }
+    }
+}
 
 $procs = Get-Process | Where-Object { $_.Id -ne 0 -and $_.Id -ne 4 }
 
@@ -39,12 +75,7 @@ if ($overCpu) {
         Format-Table -AutoSize | Out-String | Write-Host
     $flagged++
     if ($Kill) {
-        foreach ($p in $overCpu) {
-            if ($PSCmdlet.ShouldProcess("$($p.ProcessName) (PID $($p.Id))", "Stop-Process")) {
-                Write-Host "  Stopping PID $($p.Id) ($($p.ProcessName))"
-                Stop-Process -Id $p.Id -Force
-            }
-        }
+        foreach ($p in $overCpu) { Stop-Flagged -Process $p -ProtectedNames $Protect }
     }
 } else {
     Write-Host "None found."
@@ -58,12 +89,7 @@ if ($overMem) {
         Format-Table -AutoSize | Out-String | Write-Host
     $flagged++
     if ($Kill) {
-        foreach ($p in $overMem) {
-            if ($PSCmdlet.ShouldProcess("$($p.ProcessName) (PID $($p.Id))", "Stop-Process")) {
-                Write-Host "  Stopping PID $($p.Id) ($($p.ProcessName))"
-                Stop-Process -Id $p.Id -Force
-            }
-        }
+        foreach ($p in $overMem) { Stop-Flagged -Process $p -ProtectedNames $Protect }
     }
 } else {
     Write-Host "None found."
@@ -80,4 +106,9 @@ if ($notResponding) {
 }
 
 Write-Host ""
-if ($flagged -eq 0) { Write-Host "Nothing flagged." } else { Write-Host "$flagged categor(y/ies) flagged above." }
+if ($flagged -eq 0) {
+    Write-Host "Nothing flagged."
+    exit 0
+}
+Write-Host "$flagged categor(y/ies) flagged above."
+exit 1

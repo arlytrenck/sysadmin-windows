@@ -18,6 +18,17 @@
 .PARAMETER CritDays
     Treat as critical if expiry is within this many days (default: 7).
 
+.PARAMETER TimeoutSec
+    How long to wait for each live target to connect and answer the TLS
+    handshake before giving up on it (default: 10). Without a limit a
+    filtered port holds the whole run for the OS connect timeout, about
+    21 seconds per target.
+
+.NOTES
+    Exit codes: 0 = every certificate is outside the warning window;
+    1 = a warning-window certificate, or a target that could not be read;
+    2 = a certificate inside the critical window or already expired.
+
 .EXAMPLE
     .\Cert-Expiry-Check.ps1 -Targets "example.com:443","internal-app:8443" -WarnDays 45
 
@@ -30,7 +41,8 @@ param(
     [string[]]$Targets = @(),
     [string]$CertPath = '',
     [int]$WarnDays = 30,
-    [int]$CritDays = 7
+    [int]$CritDays = 7,
+    [int]$TimeoutSec = 10
 )
 
 $ErrorActionPreference = 'Stop'
@@ -41,13 +53,24 @@ if ($Targets.Count -eq 0 -and -not $CertPath) {
 }
 
 function Test-Expiry {
-    param([string]$Label, [datetime]$NotAfter)
+    param([string]$Label, [datetime]$NotAfter, [int]$Warn, [int]$Crit)
 
-    $daysLeft = ($NotAfter - (Get-Date)).Days
-    if ($daysLeft -lt $CritDays) {
+    $remaining = $NotAfter - (Get-Date)
+    $daysLeft = $remaining.Days
+    # .Days truncates toward zero, so a certificate that lapsed hours ago reads
+    # as "0 days"; decide expiry from the timestamp itself.
+    if ($remaining -le [timespan]::Zero) {
+        $status = 'EXPIRED'
+        $script:worstStatus = [math]::Max($script:worstStatus, 2)
+        $ago = -$remaining
+        $agoText = if ($ago.TotalDays -ge 1) { "$([int][math]::Floor($ago.TotalDays)) day(s)" } else { "$([int][math]::Floor($ago.TotalHours)) hour(s)" }
+        "[{0,-8}] {1,-35} expired {2} ago ({3})" -f $status, $Label, $agoText, $NotAfter.ToString('yyyy-MM-dd') | Write-Host
+        return
+    }
+    if ($daysLeft -lt $Crit) {
         $status = 'CRITICAL'
         $script:worstStatus = [math]::Max($script:worstStatus, 2)
-    } elseif ($daysLeft -lt $WarnDays) {
+    } elseif ($daysLeft -lt $Warn) {
         $status = 'WARNING'
         $script:worstStatus = [math]::Max($script:worstStatus, 1)
     } else {
@@ -62,7 +85,7 @@ if ($CertPath) {
     }
     try {
         $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($CertPath)
-        Test-Expiry -Label $CertPath -NotAfter $cert.NotAfter
+        Test-Expiry -Label $CertPath -NotAfter $cert.NotAfter -Warn $WarnDays -Crit $CritDays
     } catch {
         Write-Warning "Could not read certificate '$CertPath': $_"
         $worstStatus = [math]::Max($worstStatus, 1)
@@ -71,7 +94,7 @@ if ($CertPath) {
 
 # Accept any cert: we want the expiry date, not a trust decision. Declared once
 # so the delegate is not rebuilt per target.
-$validationCallback = [System.Net.Security.RemoteCertificateValidationCallback] { param($s, $c, $ch, $e) $true }
+$validationCallback = [System.Net.Security.RemoteCertificateValidationCallback] { $true }
 
 foreach ($target in $Targets) {
     # Split off the port from the right so IPv6 literals ("[::1]:8443") survive.
@@ -88,14 +111,22 @@ foreach ($target in $Targets) {
     $tcpClient = $null
     $sslStream = $null
     try {
-        $tcpClient = New-Object System.Net.Sockets.TcpClient($targetHost, $port)
+        $tcpClient = New-Object System.Net.Sockets.TcpClient
+        $connect = $tcpClient.BeginConnect($targetHost, $port, $null, $null)
+        if (-not $connect.AsyncWaitHandle.WaitOne([timespan]::FromSeconds($TimeoutSec))) {
+            throw "no connection within ${TimeoutSec}s"
+        }
+        $tcpClient.EndConnect($connect)
+        # Bounds the TLS handshake as well as the connect.
+        $tcpClient.ReceiveTimeout = $TimeoutSec * 1000
+        $tcpClient.SendTimeout    = $TimeoutSec * 1000
         $sslStream = New-Object System.Net.Security.SslStream($tcpClient.GetStream(), $false, $validationCallback)
         # SslProtocols::None means "let the OS pick". The parameterless
         # AuthenticateAsClient overload still negotiates TLS 1.0 on .NET
         # Framework 4.6 and earlier, which TLS 1.2-only hosts refuse.
         $sslStream.AuthenticateAsClient($targetHost, $null, [System.Security.Authentication.SslProtocols]::None, $false)
         $cert2 = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($sslStream.RemoteCertificate)
-        Test-Expiry -Label "$targetHost`:$port" -NotAfter $cert2.NotAfter
+        Test-Expiry -Label "$targetHost`:$port" -NotAfter $cert2.NotAfter -Warn $WarnDays -Crit $CritDays
     } catch {
         Write-Warning "[UNKNOWN] $targetHost`:$port - could not retrieve certificate: $_"
         $worstStatus = [math]::Max($worstStatus, 1)

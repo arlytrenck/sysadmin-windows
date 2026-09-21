@@ -10,6 +10,8 @@
       - Windows Update Auto Update RebootRequired
       - PendingFileRenameOperations (a file couldn't be replaced while in
         use, and will be renamed into place on next boot)
+      - CBS PackagesPending and RebootInProgress
+      - a staged computer rename (ActiveComputerName differs from ComputerName)
       - SCCM/ConfigMgr client reboot-pending WMI property, if present
 
 .EXAMPLE
@@ -39,6 +41,17 @@ if ($pfro -and $pfro.PendingFileRenameOperations) {
 
 if (Test-Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootInProgress') {
     $indicators += 'Component-Based Servicing: RebootInProgress flag set'
+}
+
+if (Test-Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\PackagesPending') {
+    $indicators += 'Component-Based Servicing: PackagesPending key present'
+}
+
+# A rename or domain change stages the new name and only swaps it in at boot.
+$activeName  = (Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\ComputerName\ActiveComputerName' -Name ComputerName -ErrorAction SilentlyContinue).ComputerName
+$pendingName = (Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\ComputerName\ComputerName' -Name ComputerName -ErrorAction SilentlyContinue).ComputerName
+if ($activeName -and $pendingName -and $activeName -ne $pendingName) {
+    $indicators += "Computer rename pending: active '$activeName', staged '$pendingName'"
 }
 
 # ConfigMgr client, if installed, tracks its own reboot-pending state

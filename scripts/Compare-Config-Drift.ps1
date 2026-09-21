@@ -53,16 +53,29 @@ $b = Get-Content $Current  -Raw | ConvertFrom-Json
 
 $driftFound = $false
 
+# Identity of a record: one property, or a composite when no single property is
+# unique. Keying on one property silently merges records that share it - many
+# firewall rules share a DisplayName, several tasks share a TaskName across
+# folders, and the same Run-key value name can sit under two registry paths -
+# and a merged record hides whatever changed in the one that lost.
+function Get-ItemKey {
+    param($Item, [string]$Key, [scriptblock]$KeyScript)
+    if ($KeyScript) { return [string](& $KeyScript $Item) }
+    if ($null -ne $Item.$Key) { return [string]$Item.$Key }
+    return $null
+}
+
 function Compare-Section {
     param(
         [string]$Name,
         [object[]]$Old,
         [object[]]$New,
-        [string]$Key
+        [string]$Key,
+        [scriptblock]$KeyScript
     )
     $Old = @($Old); $New = @($New)
-    $oldMap = @{}; foreach ($i in $Old) { if ($null -ne $i.$Key) { $oldMap[[string]$i.$Key] = $i } }
-    $newMap = @{}; foreach ($i in $New) { if ($null -ne $i.$Key) { $newMap[[string]$i.$Key] = $i } }
+    $oldMap = @{}; foreach ($i in $Old) { $k = Get-ItemKey $i $Key $KeyScript; if ($k) { $oldMap[$k] = $i } }
+    $newMap = @{}; foreach ($i in $New) { $k = Get-ItemKey $i $Key $KeyScript; if ($k) { $newMap[$k] = $i } }
 
     $added   = $newMap.Keys | Where-Object { -not $oldMap.ContainsKey($_) } | Sort-Object
     $removed = $oldMap.Keys | Where-Object { -not $newMap.ContainsKey($_) } | Sort-Object
@@ -92,12 +105,12 @@ function Compare-Section {
 }
 
 Compare-Section -Name 'services'        -Old $a.services        -New $b.services        -Key 'Name'
-Compare-Section -Name 'scheduledTasks'  -Old $a.scheduledTasks  -New $b.scheduledTasks  -Key 'TaskName'
+Compare-Section -Name 'scheduledTasks'  -Old $a.scheduledTasks  -New $b.scheduledTasks  -KeyScript { param($i) "$($i.TaskPath)$($i.TaskName)" }
 Compare-Section -Name 'localGroups'     -Old $a.localGroups     -New $b.localGroups     -Key 'name'
 Compare-Section -Name 'firewallProfiles' -Old $a.firewall.profiles -New $b.firewall.profiles -Key 'Name'
-Compare-Section -Name 'firewallInboundAllow' -Old $a.firewall.enabledInboundAllowRules -New $b.firewall.enabledInboundAllowRules -Key 'DisplayName'
+Compare-Section -Name 'firewallInboundAllow' -Old $a.firewall.enabledInboundAllowRules -New $b.firewall.enabledInboundAllowRules -KeyScript { param($i) "$($i.DisplayName)|$($i.Profile)|$(@($i.LocalPort) -join ',')|$($i.Program)" }
 Compare-Section -Name 'hotfixes'        -Old $a.hotfixes        -New $b.hotfixes        -Key 'HotFixID'
-Compare-Section -Name 'autoRun'         -Old $a.autoRun         -New $b.autoRun         -Key 'name'
+Compare-Section -Name 'autoRun'         -Old $a.autoRun         -New $b.autoRun         -KeyScript { param($i) "$($i.path)|$($i.name)" }
 
 # windowsFeatures is a flat string array
 $fa = @($a.windowsFeatures); $fb = @($b.windowsFeatures)
