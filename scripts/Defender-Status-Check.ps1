@@ -88,6 +88,16 @@ if (-not $status.AntivirusEnabled -or -not $status.BehaviorMonitorEnabled) {
     $flagged++
 }
 
+# Tamper Protection stops malware (and a careless admin script) from switching
+# Defender off. The property only exists on Windows 10 1903+ / Server 2022.
+if ($status.PSObject.Properties['IsTamperProtected']) {
+    Write-Host "  IsTamperProtected:       $($status.IsTamperProtected)"
+    if (-not $status.IsTamperProtected) {
+        Write-Host "  [FLAG] Tamper Protection is off"
+        $flagged++
+    }
+}
+
 Write-Host ""
 if ($flagged -gt 0) {
     Write-Host "RESULT: $flagged item(s) flagged above."
