@@ -42,6 +42,18 @@ if ($LASTEXITCODE -ne 0) {
 
 $flagged = $false
 
+# A host that has never synced (or lost its source) reports an offset of zero
+# against its own clock, so a clean offset alone proves nothing. Check that it
+# has a real time source and that it considers itself synchronized.
+if ($statusRaw | Where-Object { $_ -match '^\s*Source:\s*(Local CMOS Clock|Free-running System Clock)' }) {
+    Write-Host "FLAG: time source is the local clock - this host is not syncing to anything"
+    $flagged = $true
+}
+if ($statusRaw | Where-Object { $_ -match '^\s*Leap Indicator:\s*3' }) {
+    Write-Host "FLAG: leap indicator 3 - W32Time reports the clock as not synchronized"
+    $flagged = $true
+}
+
 $offsetLine = $statusRaw | Where-Object { $_ -match 'Phase Offset' } | Select-Object -First 1
 if (-not $offsetLine) {
     Write-Warning "Could not find a 'Phase Offset' line in w32tm output."

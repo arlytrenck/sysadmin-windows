@@ -32,13 +32,23 @@ param(
     [Parameter(Mandatory)]
     [string]$Destination,
 
+    # Below 1 the retention pass would delete the archive it just wrote.
+    [ValidateRange(1, [int]::MaxValue)]
     [int]$Keep = 7
 )
 
 $ErrorActionPreference = 'Stop'
 
-if (-not (Test-Path $Source)) {
+if (-not (Test-Path -LiteralPath $Source)) {
     throw "Source path '$Source' does not exist."
+}
+
+# An archive written inside the folder being archived would be swept into the
+# next run's zip, and grow it a little more every night.
+$srcFull = (Resolve-Path -LiteralPath $Source).ProviderPath.TrimEnd('\') + '\'
+$dstFull = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Destination).TrimEnd('\') + '\'
+if ($dstFull.StartsWith($srcFull, [System.StringComparison]::OrdinalIgnoreCase)) {
+    throw "Destination '$Destination' is inside Source '$Source'; the archive would include itself."
 }
 
 if (-not (Test-Path $Destination)) {
@@ -57,8 +67,11 @@ if ($PSCmdlet.ShouldProcess($archivePath, "Create archive")) {
 }
 
 # Retention: keep the newest $Keep archives matching this host's naming pattern
-$existing = Get-ChildItem -Path $Destination -Filter "backup-$hostname-*.zip" |
-    Sort-Object LastWriteTime -Descending
+# The extension test is not redundant: -Filter also matches 8.3 short names, so
+# "backup-HOST-*.zip" picks up "backup-HOST-1.zipx", and this loop deletes.
+$existing = @(Get-ChildItem -LiteralPath $Destination -Filter "backup-$hostname-*.zip" -File |
+    Where-Object { $_.Extension -eq '.zip' } |
+    Sort-Object LastWriteTime -Descending)
 
 if ($existing.Count -gt $Keep) {
     $toRemove = $existing | Select-Object -Skip $Keep

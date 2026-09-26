@@ -53,6 +53,27 @@ if (-not $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Adm
     throw "This script must be run from an elevated (Administrator) PowerShell session."
 }
 
+# Enabling or creating an account can't lock anyone out; disabling or removing
+# one can. Refuse the two cases that leave a host unmanageable, rather than
+# relying on whoever runs this to notice.
+if ($Action -in 'Disable', 'Remove') {
+    $target = Get-LocalUser -Name $UserName -ErrorAction SilentlyContinue
+    if (-not $target) { throw "No local user named '$UserName'." }
+
+    $me = [Security.Principal.WindowsIdentity]::GetCurrent()
+    if ($me.Name -like "*\$UserName") {
+        throw "Refusing to $($Action.ToLower()) '$UserName': that is the account running this script."
+    }
+
+    $enabledAdmins = @(Get-LocalGroupMember -SID 'S-1-5-32-544' -ErrorAction SilentlyContinue |
+        Where-Object { $_.ObjectClass -eq 'User' -and $_.PrincipalSource -eq 'Local' } |
+        ForEach-Object { Get-LocalUser -SID $_.SID -ErrorAction SilentlyContinue } |
+        Where-Object { $_ -and $_.Enabled })
+    if ($enabledAdmins.Count -eq 1 -and $enabledAdmins[0].SID -eq $target.SID) {
+        throw "Refusing to $($Action.ToLower()) '$UserName': it is the only enabled local administrator."
+    }
+}
+
 switch ($Action) {
     'Create' {
         if (Get-LocalUser -Name $UserName -ErrorAction SilentlyContinue) {

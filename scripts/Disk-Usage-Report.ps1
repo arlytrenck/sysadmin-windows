@@ -44,9 +44,11 @@ foreach ($drive in $drives) {
 Write-Host ""
 Write-Host "=== Top $Top largest subfolders under $Path ==="
 try {
-    $items = Get-ChildItem -Path $Path -Directory -ErrorAction SilentlyContinue
+    # -LiteralPath: folder names containing [ ] are wildcards to -Path and would
+    # silently match nothing (or the wrong folder).
+    $items = Get-ChildItem -LiteralPath $Path -Directory -ErrorAction SilentlyContinue
     $sizes = foreach ($item in $items) {
-        $size = (Get-ChildItem -Path $item.FullName -Recurse -File -ErrorAction SilentlyContinue |
+        $size = (Get-ChildItem -LiteralPath $item.FullName -Recurse -File -ErrorAction SilentlyContinue |
             Measure-Object -Property Length -Sum).Sum
         [PSCustomObject]@{
             Path   = $item.FullName

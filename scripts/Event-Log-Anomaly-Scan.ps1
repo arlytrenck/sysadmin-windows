@@ -10,6 +10,10 @@
     you didn't think to watch for in advance. Checks System and
     Application logs by default.
 
+.NOTES
+    Exit codes: 0 = no anomaly; 1 = anomalous error rate; 2 = a log could
+    not be queried (unknown or unreadable), so the result is incomplete.
+
 .PARAMETER WindowMinutes
     Size of both the recent and baseline windows, in minutes (default: 15).
 
@@ -35,26 +39,41 @@ $recentStart = $now.AddMinutes(-$WindowMinutes)
 $baselineStart = $now.AddMinutes(-2 * $WindowMinutes)
 
 $anomalyFound = $false
+$queryFailed = $false
+
+# Get-WinEvent reports "no matching events" as an error, which is the good
+# case here and must read as zero. Every other failure (a misspelled log name,
+# no permission to read Security) has to surface: swallowing all errors with
+# SilentlyContinue would turn "could not look" into "nothing wrong".
+function Get-ErrorEventCount {
+    param([string]$Log, [datetime]$Start, [datetime]$End)
+    try {
+        $events = @(Get-WinEvent -FilterHashtable @{
+            LogName   = $Log
+            Level     = 1, 2   # Critical, Error
+            StartTime = $Start
+            EndTime   = $End
+        } -ErrorAction Stop)
+        return $events.Count
+    } catch {
+        if ($_.FullyQualifiedErrorId -like 'NoMatchingEventsFound*' -or
+            $_.Exception.Message -like 'No events were found*') {
+            return 0
+        }
+        throw
+    }
+}
 
 foreach ($log in $LogName) {
     Write-Host "=== $log log ==="
 
     try {
-        $recentCount = (Get-WinEvent -FilterHashtable @{
-            LogName   = $log
-            Level     = 1, 2   # Critical, Error
-            StartTime = $recentStart
-            EndTime   = $now
-        } -ErrorAction SilentlyContinue | Measure-Object).Count
-
-        $baselineCount = (Get-WinEvent -FilterHashtable @{
-            LogName   = $log
-            Level     = 1, 2
-            StartTime = $baselineStart
-            EndTime   = $recentStart
-        } -ErrorAction SilentlyContinue | Measure-Object).Count
+        $recentCount   = Get-ErrorEventCount -Log $log -Start $recentStart   -End $now
+        $baselineCount = Get-ErrorEventCount -Log $log -Start $baselineStart -End $recentStart
     } catch {
-        Write-Host "  Could not query this log: $($_.Exception.Message)"
+        Write-Host "  [ERROR] Could not query this log: $($_.Exception.Message)"
+        $queryFailed = $true
+        Write-Host ""
         continue
     }
 
@@ -81,10 +100,13 @@ foreach ($log in $LogName) {
     Write-Host ""
 }
 
+if ($queryFailed) {
+    Write-Host "RESULT: one or more logs could not be queried, so this check is incomplete."
+    exit 2
+}
 if ($anomalyFound) {
     Write-Host "RESULT: one or more logs show an anomalous error rate."
     exit 1
-} else {
-    Write-Host "RESULT: no anomalies found."
-    exit 0
 }
+Write-Host "RESULT: no anomalies found."
+exit 0
