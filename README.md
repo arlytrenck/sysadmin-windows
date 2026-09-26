@@ -52,13 +52,13 @@ sysadmin-windows/
 │   ├── Network-Diagnostics.ps1        # adapters, routing, DNS, reachability
 │   ├── Security-Audit.ps1             # admin membership, firewall, failed logons, etc.
 │   ├── Package-Inventory.ps1          # snapshot installed software, diff baselines
-│   ├── User-Activity-Report.ps1       # logons, failed logons, lockouts
+│   ├── User-Activity-Report.ps1       # interactive logons, failed logons, lockouts
 │   ├── Cert-Expiry-Check.ps1          # TLS cert expiry, live host or local file
 │   ├── Scheduled-Task-Audit.ps1       # flag SYSTEM/hidden/user-writable-path tasks
 │   ├── Firewall-Rules-Dump.ps1        # snapshot Windows Firewall rules
 │   ├── Local-Admin-Audit.ps1          # flag unexpected/disabled local admins
 │   ├── Disk-Health-Check.ps1          # physical disk health & reliability counters
-│   ├── Process-Watchdog.ps1           # flag high CPU/mem or unresponsive processes
+│   ├── Process-Watchdog.ps1           # flag high CPU/mem or unresponsive processes (-Kill skips critical ones)
 │   ├── Pending-Reboot-Check.ps1       # detect whether a reboot is waiting to apply
 │   ├── Event-Log-Anomaly-Scan.ps1     # flag error-rate spikes vs. a trailing baseline
 │   ├── Defender-Status-Check.ps1      # real-time protection, signature age, last scan
@@ -133,9 +133,10 @@ PowerShell session.
   operations
 - `PSWindowsUpdate` module for `Windows-Update.ps1` (auto-installed from
   PSGallery on first run if internet-connected)
-- RSAT AD PowerShell module for the Active Directory reference commands
-  and for `Local-Admin-Audit.ps1`'s domain-account checks (not required
-  for local-only accounts)
+- RSAT AD PowerShell module for the Active Directory reference commands.
+  `Local-Admin-Audit.ps1` uses it for domain-account checks when it is
+  installed and queries LDAP directly when it is not, so it is optional
+  there
 - Storage module (built in on Windows Server 2012+/Windows 8+) for
   `Disk-Health-Check.ps1`
 - Defender PowerShell module (built in on Windows 10/11 and Server

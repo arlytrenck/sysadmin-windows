@@ -8,6 +8,10 @@
     Optional list of host:port pairs to test reachability for
     (e.g. "dc01:389", "8.8.8.8:53").
 
+.NOTES
+    Exit codes: 0 = every check passed; 1 = the default gateway did not
+    answer, DNS resolution failed, or a -Targets entry was closed.
+
 .EXAMPLE
     .\Network-Diagnostics.ps1 -Targets "dc01:389","fileserver:445"
 #>
@@ -18,6 +22,7 @@ param(
 )
 
 $ErrorActionPreference = 'SilentlyContinue'
+$failures = 0
 
 Write-Host "=== Network adapters and addresses ==="
 Get-NetIPConfiguration | Format-Table InterfaceAlias, IPv4Address, IPv4DefaultGateway, DNSServer -AutoSize |
@@ -37,6 +42,7 @@ foreach ($gw in $gateways) {
         Write-Host "[OK]   Gateway $gw is reachable"
     } else {
         Write-Warning "[FAIL] Gateway $gw did not respond to ping"
+        $failures++
     }
 }
 
@@ -47,6 +53,7 @@ try {
     Write-Host "[OK]   DNS resolution working ($($dnsTest[0].IPAddress))"
 } catch {
     Write-Warning "[FAIL] DNS resolution failed: $_"
+    $failures++
 }
 
 Write-Host ""
@@ -69,10 +76,16 @@ if ($Targets.Count -gt 0) {
             Write-Host "[OPEN]   $hostName`:$port"
         } else {
             Write-Warning "[CLOSED] $hostName`:$port"
+            $failures++
         }
     }
 }
 
 Write-Host ""
+if ($failures -gt 0) {
+    Write-Host "Done. $failures check(s) failed."
+    exit 1
+}
 Write-Host "Done."
+exit 0
 

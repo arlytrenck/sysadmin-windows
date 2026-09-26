@@ -47,10 +47,15 @@ foreach ($logName in $LogNames) {
         Write-Host "$logName`: $count entries older than $RetentionDays days"
 
         if ($count -gt 0 -and -not $DryRun) {
-            $exportPath = "C:\Windows\Temp\$logName-archive-$(Get-Date -Format yyyyMMdd).evtx"
-            wevtutil epl $logName $exportPath "/q:*[System[TimeCreated[timediff(@SystemTime) >= $($RetentionDays * 86400000)]]]" 2>$null
-            if (Test-Path $exportPath) {
+            $exportPath = Join-Path $env:windir "Temp\$logName-archive-$(Get-Date -Format yyyyMMdd).evtx"
+            # /ow:true: the name is per-day, so a second run the same day would
+            # otherwise fail on the existing file - and the Test-Path below
+            # would then report yesterday-morning's export as this run's.
+            wevtutil epl $logName $exportPath "/q:*[System[TimeCreated[timediff(@SystemTime) >= $($RetentionDays * 86400000)]]]" /ow:true 2>$null
+            if ($LASTEXITCODE -eq 0 -and (Test-Path $exportPath)) {
                 Write-Host "  Exported matching entries to $exportPath"
+            } else {
+                Write-Warning "  wevtutil could not export '$logName' (exit $LASTEXITCODE); nothing archived."
             }
         } elseif ($DryRun) {
             Write-Host "  (dry run - would export/archive these entries)"
@@ -63,11 +68,14 @@ foreach ($logName in $LogNames) {
 if ($LogFolder) {
     Write-Host ""
     Write-Host "=== Flat log files under $LogFolder ==="
-    if (-not (Test-Path $LogFolder)) {
+    if (-not (Test-Path -LiteralPath $LogFolder)) {
         Write-Warning "Log folder '$LogFolder' not found."
     } else {
-        $oldFiles = Get-ChildItem -Path $LogFolder -Filter '*.log' -Recurse -File |
-            Where-Object { $_.LastWriteTime -lt $cutoff }
+        # -Filter '*.log' also matches 8.3 short names, so it returns things
+        # like "web.logfile" and "old.log_bak". This branch deletes, so the
+        # extension is checked exactly.
+        $oldFiles = @(Get-ChildItem -LiteralPath $LogFolder -Filter '*.log' -Recurse -File |
+            Where-Object { $_.Extension -eq '.log' -and $_.LastWriteTime -lt $cutoff })
         foreach ($file in $oldFiles) {
             if ($DryRun) {
                 Write-Host "Would remove: $($file.FullName) (last written $($file.LastWriteTime))"

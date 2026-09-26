@@ -64,7 +64,9 @@ $snapshot = [ordered]@{
             Select-Object TaskName, TaskPath, State,
                 @{ N = 'RunAs';  E = { $_.Principal.UserId } },
                 @{ N = 'Hidden'; E = { [bool]$_.Settings.Hidden } },
-                @{ N = 'Actions'; E = { ($_.Actions | ForEach-Object { $_.Execute }) -join '; ' } } |
+                # Arguments are part of the action: swapping a task's payload for
+                # "powershell.exe -File evil.ps1" leaves Execute unchanged.
+                @{ N = 'Actions'; E = { ($_.Actions | ForEach-Object { "$($_.Execute) $($_.Arguments)".Trim() }) -join '; ' } } |
             Sort-Object TaskPath, TaskName
     } 'scheduledTasks'
 
@@ -84,10 +86,17 @@ $snapshot = [ordered]@{
                 DefaultInboundAction, DefaultOutboundAction
         } 'firewallProfiles'
         enabledInboundAllowRules = Get-Safe {
+            # One bulk fetch per filter type, indexed by rule id: piping each
+            # rule into the filter cmdlets is a CIM round trip per rule, which
+            # takes minutes on a host with a few hundred of them.
+            $ports = @{}
+            foreach ($f in @(Get-NetFirewallPortFilter -All -ErrorAction SilentlyContinue)) { $ports[$f.InstanceID] = $f }
+            $apps = @{}
+            foreach ($f in @(Get-NetFirewallApplicationFilter -All -ErrorAction SilentlyContinue)) { $apps[$f.InstanceID] = $f }
             Get-NetFirewallRule -Enabled True -Direction Inbound -Action Allow |
                 Select-Object DisplayName, Profile,
-                    @{ N = 'LocalPort'; E = { ($_ | Get-NetFirewallPortFilter).LocalPort } },
-                    @{ N = 'Program';   E = { ($_ | Get-NetFirewallApplicationFilter).Program } } |
+                    @{ N = 'LocalPort'; E = { $ports[$_.InstanceID].LocalPort } },
+                    @{ N = 'Program';   E = { $apps[$_.InstanceID].Program } } |
                 Sort-Object DisplayName
         } 'firewallRules'
     }
@@ -106,7 +115,7 @@ $snapshot = [ordered]@{
 
     hotfixes = Get-Safe {
         Get-HotFix | Select-Object HotFixID, Description,
-            @{ N = 'InstalledOn'; E = { $_.InstalledOn.ToString('yyyy-MM-dd') } } |
+            @{ N = 'InstalledOn'; E = { if ($_.InstalledOn) { $_.InstalledOn.ToString('yyyy-MM-dd') } else { $null } } } |
             Sort-Object HotFixID
     } 'hotfixes'
 
