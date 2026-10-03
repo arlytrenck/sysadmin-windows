@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/assets/logo.svg" alt="sysadmin-windows" width="480">
+</p>
+
 # sysadmin-windows
 
 [![PSScriptAnalyzer](https://github.com/arlytrenck/sysadmin-windows/actions/workflows/psscriptanalyzer.yml/badge.svg)](https://github.com/arlytrenck/sysadmin-windows/actions/workflows/psscriptanalyzer.yml)
